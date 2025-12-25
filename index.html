@@ -1,0 +1,3589 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OctoPet - Premium Virtual Pet Experience</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Ocean Color Palette */
+            --ocean-deep: #0a1128;
+            --ocean-mid: #1b2845;
+            --ocean-light: #2e4482;
+            --ocean-surface: #4ea5d9;
+            --ocean-foam: #82c0df;
+
+            /* Octopus Colors */
+            --octo-primary: #ff6b9d;
+            --octo-secondary: #ffa8c5;
+            --octo-shadow: rgba(255, 107, 157, 0.3);
+            --octo-highlight: #ffe0ea;
+
+            /* UI Colors */
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --glass-shadow: rgba(0, 0, 0, 0.1);
+
+            /* Status Colors */
+            --status-full: #4ade80;
+            --status-mid: #fbbf24;
+            --status-low: #f87171;
+
+            /* Transitions */
+            --transition-fast: 0.2s ease;
+            --transition-medium: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            background:
+                /* Light rays effect from top */
+                radial-gradient(ellipse 800px 400px at 50% 0%, rgba(78, 165, 217, 0.3) 0%, transparent 60%),
+                radial-gradient(ellipse 600px 300px at 30% 0%, rgba(130, 192, 223, 0.2) 0%, transparent 50%),
+                radial-gradient(ellipse 600px 300px at 70% 0%, rgba(130, 192, 223, 0.2) 0%, transparent 50%),
+
+                /* Deep ocean gradient */
+                linear-gradient(to bottom,
+                    #1a4d6d 0%,
+                    /* Deep blue at top */
+                    #2d5f7e 20%,
+                    /* Mid blue */
+                    #1e3a52 50%,
+                    /* Darker middle */
+                    #152838 80%,
+                    /* Very dark bottom */
+                    #0d1b28 100%
+                    /* Almost black */
+                ),
+
+                /* Subtle texture overlay */
+                radial-gradient(circle at 20% 80%, rgba(46, 68, 130, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(78, 165, 217, 0.2) 0%, transparent 40%);
+        }
+
+        /* Animated light effect overlay */
+        body::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background:
+                radial-gradient(ellipse 1200px 800px at 50% 0%,
+                    rgba(255, 255, 255, 0.08) 0%,
+                    rgba(255, 255, 255, 0.03) 30%,
+                    transparent 60%);
+            animation: light-shimmer 20s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes light-shimmer {
+
+            0%,
+            100% {
+                transform: translateX(0) translateY(0) scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: translateX(100px) translateY(50px) scale(1.1);
+                opacity: 0.8;
+            }
+        }
+
+        /* === UNDERWATER ENVIRONMENT === */
+        #ocean-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        /* === PREMIUM BUBBLES === */
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%,
+                    rgba(255, 255, 255, 0.9),
+                    rgba(255, 255, 255, 0.6) 40%,
+                    rgba(180, 230, 255, 0.4) 70%,
+                    rgba(150, 200, 255, 0.2));
+            box-shadow:
+                inset -5px -5px 15px rgba(255, 255, 255, 0.6),
+                inset 5px 5px 10px rgba(0, 100, 150, 0.3),
+                0 0 20px rgba(180, 230, 255, 0.4);
+            animation: bubble-rise-premium linear infinite;
+            filter: blur(0.5px);
+        }
+
+        .bubble::before {
+            content: '';
+            position: absolute;
+            top: 20%;
+            left: 25%;
+            width: 35%;
+            height: 35%;
+            background: radial-gradient(circle at 50% 50%,
+                    rgba(255, 255, 255, 0.8),
+                    transparent);
+            border-radius: 50%;
+        }
+
+        @keyframes bubble-rise-premium {
+            0% {
+                transform: translateY(0) translateX(0) scale(0.5);
+                opacity: 0;
+            }
+
+            5% {
+                opacity: 0.8;
+            }
+
+            85% {
+                opacity: 0.8;
+            }
+
+            100% {
+                transform: translateY(-120vh) translateX(var(--bubble-drift, 80px)) scale(1.3);
+                opacity: 0;
+            }
+        }
+
+        /* === ULTRA-PREMIUM SEAWEED === */
+        .seaweed {
+            position: absolute;
+            bottom: 0;
+            transform-origin: bottom center;
+            filter: drop-shadow(0 8px 15px rgba(0, 0, 0, 0.6));
+        }
+
+        .seaweed-stem {
+            width: 38px;
+            height: 240px;
+            background:
+                linear-gradient(90deg, transparent 0%, rgba(144, 238, 144, 0.15) 50%, transparent 100%),
+                linear-gradient(to right,
+                    #0a2e14 0%,
+                    #1a5d2e 20%,
+                    #2d8a3f 40%,
+                    #40a850 50%,
+                    #2d8a3f 60%,
+                    #1a5d2e 80%,
+                    #0a2e14 100%);
+            border-radius: 20px 20px 0 0;
+            position: relative;
+            animation: seaweed-sway-ultra 7s ease-in-out infinite;
+            box-shadow:
+                inset 4px 0 12px rgba(0, 0, 0, 0.4),
+                inset -4px 0 12px rgba(144, 238, 144, 0.2);
+        }
+
+        .seaweed-stem::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom,
+                    rgba(144, 238, 144, 0.35) 0%,
+                    transparent 20%,
+                    transparent 80%,
+                    rgba(0, 0, 0, 0.4) 100%);
+            border-radius: 20px 20px 0 0;
+        }
+
+        .seaweed-stem::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 6px;
+            height: 100%;
+            background: linear-gradient(to bottom,
+                    rgba(180, 255, 180, 0.5),
+                    rgba(76, 175, 80, 0.3),
+                    transparent);
+            border-radius: 3px;
+            filter: blur(1px);
+        }
+
+        .seaweed-leaf {
+            position: absolute;
+            background:
+                radial-gradient(circle at 30% 30%, rgba(144, 238, 144, 0.4), transparent 60%),
+                radial-gradient(ellipse at 25% 40%,
+                    #52c967,
+                    #40a850,
+                    #2d8a3f,
+                    #1a5d2e,
+                    #0f3d1a);
+            border-radius: 55% 45% 60% 40%;
+            animation: leaf-wave-ultra 4.5s ease-in-out infinite;
+            box-shadow:
+                inset 3px 3px 8px rgba(180, 255, 180, 0.4),
+                inset -3px -3px 8px rgba(0, 50, 0, 0.5),
+                0 3px 10px rgba(0, 0, 0, 0.4);
+        }
+
+        .seaweed-leaf::before {
+            content: '';
+            position: absolute;
+            width: 55%;
+            height: 85%;
+            top: 8%;
+            left: 12%;
+            background: linear-gradient(130deg,
+                    rgba(180, 255, 180, 0.6),
+                    rgba(144, 238, 144, 0.3),
+                    transparent);
+            border-radius: 55% 45% 60% 40%;
+        }
+
+        .seaweed-leaf:nth-child(1) {
+            width: 52px;
+            height: 30px;
+            top: 12%;
+            left: -30px;
+            animation-delay: 0s;
+            transform-origin: 100% 50%;
+        }
+
+        .seaweed-leaf:nth-child(2) {
+            width: 58px;
+            height: 34px;
+            top: 32%;
+            right: -34px;
+            animation-delay: 1.2s;
+            transform-origin: 0% 50%;
+        }
+
+        .seaweed-leaf:nth-child(3) {
+            width: 48px;
+            height: 28px;
+            top: 52%;
+            left: -28px;
+            animation-delay: 2.4s;
+            transform-origin: 100% 50%;
+        }
+
+        .seaweed-leaf:nth-child(4) {
+            width: 55px;
+            height: 32px;
+            top: 72%;
+            right: -32px;
+            animation-delay: 3.6s;
+            transform-origin: 0% 50%;
+        }
+
+        @keyframes seaweed-sway-ultra {
+
+            0%,
+            100% {
+                transform: rotate(-7deg) scaleY(1) translateX(0);
+            }
+
+            20% {
+                transform: rotate(2deg) scaleY(1.02) translateX(4px);
+            }
+
+            50% {
+                transform: rotate(7deg) scaleY(1) translateX(6px);
+            }
+
+            80% {
+                transform: rotate(-3deg) scaleY(0.98) translateX(-4px);
+            }
+        }
+
+        @keyframes leaf-wave-ultra {
+
+            0%,
+            100% {
+                transform: rotate(-18deg) scale(1) translateY(0);
+            }
+
+            15% {
+                transform: rotate(-5deg) scale(1.03) translateY(-2px);
+            }
+
+            50% {
+                transform: rotate(18deg) scale(1.12) translateY(-6px);
+            }
+
+            85% {
+                transform: rotate(8deg) scale(1.06) translateY(-3px);
+            }
+        }
+
+        /* === ULTRA-PREMIUM CORAL === */
+        .coral {
+            position: absolute;
+            bottom: 10px;
+            filter: drop-shadow(0 8px 16px rgba(255, 30, 100, 0.4));
+        }
+
+        .coral-branch {
+            position: absolute;
+            background:
+                radial-gradient(circle at 22% 22%, rgba(255, 255, 255, 0.5), transparent 45%),
+                radial-gradient(ellipse at 38% 38%,
+                    #ffc3d5,
+                    #ffaac0,
+                    #ff90ab,
+                    #ff6b9d,
+                    #f06292,
+                    #d8527a,
+                    #c44569);
+            border-radius: 48% 52% 45% 55%;
+            animation: coral-pulse-ultra 6s ease-in-out infinite;
+            box-shadow:
+                inset 4px 4px 12px rgba(255, 255, 255, 0.5),
+                inset -4px -4px 12px rgba(150, 0, 50, 0.5),
+                0 6px 18px rgba(255, 20, 100, 0.5);
+        }
+
+        .coral-branch::before {
+            content: '';
+            position: absolute;
+            top: 18%;
+            left: 22%;
+            width: 50%;
+            height: 50%;
+            background: radial-gradient(ellipse at 45% 45%,
+                    rgba(255, 255, 255, 0.7),
+                    rgba(255, 200, 220, 0.4) 35%,
+                    transparent 65%);
+            border-radius: 50%;
+            filter: blur(3px);
+        }
+
+        .coral-branch::after {
+            content: '';
+            position: absolute;
+            bottom: 12%;
+            right: 18%;
+            width: 35%;
+            height: 35%;
+            background: radial-gradient(circle,
+                    rgba(180, 30, 80, 0.4),
+                    transparent 70%);
+            border-radius: 50%;
+            filter: blur(2px);
+        }
+
+        .coral-branch:nth-child(1) {
+            width: 70px;
+            height: 70px;
+            left: 0;
+            bottom: 0;
+            z-index: 4;
+        }
+
+        .coral-branch:nth-child(2) {
+            width: 58px;
+            height: 58px;
+            left: 42px;
+            bottom: 38px;
+            animation-delay: 1.2s;
+            z-index: 3;
+        }
+
+        .coral-branch:nth-child(3) {
+            width: 50px;
+            height: 50px;
+            left: -32px;
+            bottom: 32px;
+            animation-delay: 2.4s;
+            z-index: 3;
+        }
+
+        .coral-branch:nth-child(4) {
+            width: 64px;
+            height: 64px;
+            left: 25px;
+            bottom: -10px;
+            animation-delay: 3.6s;
+            z-index: 2;
+        }
+
+        .coral-branch:nth-child(5) {
+            width: 46px;
+            height: 46px;
+            left: 62px;
+            bottom: 18px;
+            animation-delay: 4.8s;
+            z-index: 1;
+        }
+
+        @keyframes coral-pulse-ultra {
+
+            0%,
+            100% {
+                transform: scale(1) rotate(0deg);
+                opacity: 0.92;
+            }
+
+            20% {
+                transform: scale(1.06) rotate(1deg);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.15) rotate(0deg);
+                opacity: 1;
+            }
+
+            80% {
+                transform: scale(1.08) rotate(-1deg);
+                opacity: 1;
+            }
+        }
+
+        /* === FLOATING PARTICLES === */
+        .particle-float {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: rgba(180, 230, 255, 0.6);
+            border-radius: 50%;
+            box-shadow: 0 0 8px rgba(180, 230, 255, 0.8);
+            animation: float-drift 15s linear infinite;
+        }
+
+        @keyframes float-drift {
+            0% {
+                transform: translate(0, 0);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            90% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: translate(var(--drift-x, 100px), var(--drift-y, -150px));
+                opacity: 0;
+            }
+        }
+
+
+        /* === FRIENDLY UI PANELS === */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.92);
+            border: 3px solid #2c3e50;
+            border-radius: 20px 25px 22px 24px;
+            box-shadow: 6px 6px 0 rgba(44, 62, 80, 0.3);
+        }
+
+        /* HUD */
+        #hud {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%) rotate(-0.5deg);
+            z-index: 100;
+            display: flex;
+            gap: 12px;
+            padding: 18px 22px;
+        }
+
+        .stat-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-width: 140px;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #d35400;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.5);
+        }
+
+        .stat-icon {
+            font-size: 1.2rem;
+        }
+
+        .stat-bar {
+            position: relative;
+            height: 16px;
+            background: #ecf0f1;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid #34495e;
+        }
+
+        .stat-fill {
+            height: 100%;
+            background: var(--status-full);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            position: relative;
+        }
+
+        .stat-value {
+            position: absolute;
+            right: 6px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: #2c3e50;
+            text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.8);
+        }
+
+        /* === OCTOPUS === */
+        #pet-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 50;
+        }
+
+        #octopus {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            cursor: pointer;
+            transition: transform var(--transition-medium);
+        }
+
+        #octopus:hover {
+            transform: scale(1.05);
+        }
+
+        .octopus-body {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 220px;
+            height: 220px;
+            background-image: url('octopus.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            animation: octopus-breathe 4s ease-in-out infinite;
+            filter: drop-shadow(0 10px 30px rgba(255, 107, 157, 0.3));
+        }
+
+        @keyframes octopus-breathe {
+
+            0%,
+            100% {
+                transform: translateX(-50%) translateY(0) scale(1);
+            }
+
+            50% {
+                transform: translateX(-50%) translateY(-15px) scale(1.02);
+            }
+        }
+
+        /* Eyes - Hidden */
+        .eyes-container {
+            display: none;
+        }
+
+        .eye {
+            display: none;
+        }
+
+        .pupil {
+            display: none;
+        }
+
+        .eye-shine {
+            display: none;
+        }
+
+        /* Mouth - hidden, exists in PNG */
+        .mouth {
+            display: none;
+        }
+
+        .mouth.happy {
+            width: 60px;
+            height: 30px;
+        }
+
+        .mouth.sad {
+            transform: translateX(-50%) rotate(180deg);
+            top: 100px;
+        }
+
+        /* Blush - hidden, exists in PNG */
+        .blush {
+            display: none;
+        }
+
+        .blush.left {
+            left: 15px;
+        }
+
+        .blush.right {
+            right: 15px;
+        }
+
+        #octopus.happy .blush {
+            opacity: 1;
+        }
+
+        /* Tentacles - Hidden, PNG has tentacles */
+        .tentacles-container {
+            display: none;
+        }
+
+        .tentacle {
+            display: none;
+        }
+
+        .tentacle-segment {
+            display: none;
+        }
+
+        /* === EDUCATIONAL FEATURES === */
+
+        /* Achievement Badge */
+        #achievement-popup {
+            position: fixed;
+            top: 20px;
+            right: -350px;
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            padding: 20px 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            z-index: 300;
+            transition: right 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            border: 3px solid #ff8c00;
+            max-width: 300px;
+        }
+
+        #achievement-popup.show {
+            right: 20px;
+        }
+
+        .achievement-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #8b4513;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .achievement-desc {
+            font-size: 0.95rem;
+            color: #654321;
+        }
+
+        /* Vocabulary Panel */
+        #vocab-panel {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #fff9c4;
+            padding: 16px 20px;
+            border-radius: 18px 22px 20px 24px;
+            box-shadow: 5px 5px 0 rgba(251, 192, 45, 0.4);
+            border: 3px solid #f57f17;
+            z-index: 90;
+            color: #5d4037;
+            min-width: 190px;
+            transform: rotate(1deg);
+        }
+
+        .vocab-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        .vocab-word {
+            font-size: 1.4rem;
+            font-weight: 800;
+            margin-bottom: 4px;
+            color: #d84315;
+        }
+
+        .vocab-definition {
+            font-size: 0.82rem;
+            line-height: 1.3;
+        }
+
+        /* Level Display */
+        #level-display {
+            position: absolute;
+            bottom: 100px;
+            left: 20px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+            backdrop-filter: blur(10px);
+            padding: 12px 20px;
+            border-radius: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            z-index: 90;
+        }
+
+        .level-number {
+            font-size: 1.5rem;
+            color: #ffd700;
+        }
+
+        /* Story Mode UI */
+        .story-text {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            font-size: 1.05rem;
+            line-height: 1.6;
+            color: var(--ocean-mid);
+            margin: 20px 0;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .story-choices {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .story-choice-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            text-align: left;
+        }
+
+        .story-choice-btn:hover {
+            transform: translateX(10px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+
+        /* === ACTION BUTTONS - Organic & Playful === */
+        #action-panel {
+            position: absolute;
+            bottom: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            display: flex;
+            gap: 10px;
+            padding: 18px 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 95%;
+        }
+
+        .action-btn {
+            background: #fff;
+            border: 3px solid #2c3e50;
+            padding: 12px 22px;
+            border-radius: 25px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #2c3e50;
+            cursor: pointer;
+            box-shadow: 4px 4px 0 #34495e;
+            transition: all 0.15s;
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-family: 'Comic Sans MS', 'Poppins', sans-serif;
+            transform: rotate(-1deg);
+        }
+
+        .action-btn:nth-child(2n) {
+            transform: rotate(1deg);
+            background: #fffacd;
+        }
+
+        .action-btn:nth-child(3n) {
+            transform: rotate(-0.5deg);
+            background: #e8f5e9;
+        }
+
+        .action-btn:nth-child(4n) {
+            background: #fff3e0;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-3px) rotate(0deg);
+            box-shadow: 6px 6px 0 #34495e;
+        }
+
+        .action-btn:active {
+            transform: translateY(2px) rotate(0deg);
+            box-shadow: 2px 2px 0 #34495e;
+        }
+
+        .btn-icon {
+            font-size: 1.4rem;
+        }
+
+        /* === MODALS === */
+        #modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            z-index: 200;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity var(--transition-medium);
+        }
+
+        #modal-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(240, 240, 255, 0.95));
+            padding: 40px;
+            border-radius: 30px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            transform: scale(0.8) translateY(50px);
+            transition: transform var(--transition-medium);
+            position: relative;
+        }
+
+        #modal-overlay.active .modal {
+            transform: scale(1) translateY(0);
+        }
+
+        .modal-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--ocean-mid);
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: rgba(255, 82, 82, 0.9);
+            color: white;
+            font-size: 1.5rem;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-fast);
+            font-weight: bold;
+        }
+
+        .modal-close:hover {
+            background: #ff5252;
+            transform: rotate(90deg) scale(1.1);
+        }
+
+        /* Speech Bubble */
+        #speech-bubble {
+            position: absolute;
+            top: -60px;
+            left: 50%;
+            transform: translateX(-50%) scale(0);
+            background: white;
+            padding: 12px 20px;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--ocean-mid);
+            white-space: nowrap;
+            z-index: 60;
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+
+        #speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 10px 10px 0;
+            border-style: solid;
+            border-color: white transparent transparent;
+        }
+
+        #speech-bubble.show {
+            transform: translateX(-50%) scale(1);
+            opacity: 1;
+        }
+
+        /* Particle System */
+        .particle {
+            position: fixed;
+            pointer-events: none;
+            z-index: 150;
+        }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 768px) {
+            #hud {
+                flex-direction: column;
+                gap: 10px;
+                top: 10px;
+                padding: 10px 15px;
+            }
+
+            .stat-container {
+                min-width: 120px;
+            }
+
+            #octopus {
+                width: 160px;
+                height: 160px;
+            }
+
+            .octopus-body {
+                width: 130px;
+                height: 130px;
+            }
+
+            #action-panel {
+                flex-wrap: wrap;
+                bottom: 20px;
+                padding: 10px;
+            }
+
+            .action-btn {
+                padding: 12px 20px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Ocean Background -->
+    <div id="ocean-bg"></div>
+
+    <!-- Language Selector -->
+    <div style="
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        z-index: 110;
+        background: rgba(255, 255, 255, 0.92);
+        border: 3px solid #2c3e50;
+        border-radius: 25px;
+        padding: 8px 15px;
+        box-shadow: 5px 5px 0 rgba(44, 62, 80, 0.3);
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    ">
+        <span style="font-size: 1.2rem;">🌍</span>
+        <button id="lang-tr" onclick="game.setLanguage('tr')" style="
+            background: #ecf0f1;
+            color: #7f8c8d;
+            border: 2px solid #bdc3c7;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        ">TR</button>
+        <button id="lang-en" onclick="game.setLanguage('en')" style="
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 2px 2px 0 rgba(0,0,0,0.2);
+        ">EN</button>
+    </div>
+
+    <!-- HUD -->
+    <div id="hud" class="glass-panel">
+        <div class="stat-container">
+            <div class="stat-label">
+                <span class="stat-icon">🍖</span>
+                <span>Hunger</span>
+            </div>
+            <div class="stat-bar">
+                <div id="hunger-fill" class="stat-fill" style="width: 100%;">
+                    <span class="stat-value">100%</span>
+                </div>
+            </div>
+        </div>
+        <div class="stat-container">
+            <div class="stat-label">
+                <span class="stat-icon">😊</span>
+                <span>Happiness</span>
+            </div>
+            <div class="stat-bar">
+                <div id="happiness-fill" class="stat-fill" style="width: 100%;">
+                    <span class="stat-value">100%</span>
+                </div>
+            </div>
+        </div>
+        <div class="stat-container">
+            <div class="stat-label">
+                <span class="stat-icon">✨</span>
+                <span>Hygiene</span>
+            </div>
+            <div class="stat-bar">
+                <div id="hygiene-fill" class="stat-fill" style="width: 100%;">
+                    <span class="stat-value">100%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pet Container -->
+    <div id="pet-container">
+        <div id="speech-bubble">Hello! I'm your OctoPet!</div>
+        <div id="octopus" class="happy">
+            <div class="octopus-body">
+                <div class="eyes-container">
+                    <div class="eye">
+                        <div class="eye-shine"></div>
+                        <div class="pupil" id="pupil-left"></div>
+                    </div>
+                    <div class="eye">
+                        <div class="eye-shine"></div>
+                        <div class="pupil" id="pupil-right"></div>
+                    </div>
+                </div>
+                <div class="blush left"></div>
+                <div class="blush right"></div>
+                <div class="mouth happy"></div>
+            </div>
+            <div class="tentacles-container" id="tentacles"></div>
+        </div>
+    </div>
+
+    <!-- Vocabulary Panel -->
+    <div id="vocab-panel">
+        <div class="vocab-title">📚 Word of the Day</div>
+        <div class="vocab-word" id="vocab-word">Magnificent</div>
+        <div class="vocab-definition" id="vocab-def">extraordinarily beautiful or impressive</div>
+    </div>
+
+    <!-- Level Display -->
+    <div id="level-display">
+        <div>Level <span class="level-number" id="level-num">1</span></div>
+        <div style="font-size: 0.85rem; opacity: 0.9;">XP: <span id="xp-display">0/100</span></div>
+    </div>
+
+    <!-- Achievement Popup -->
+    <div id="achievement-popup">
+        <div class="achievement-title">
+            <span style="font-size: 1.5rem;">🏆</span>
+            <span id="achievement-name">Achievement!</span>
+        </div>
+        <div class="achievement-desc" id="achievement-desc">You did something amazing!</div>
+    </div>
+
+    <!-- Actions -->
+    <div id="action-panel" class="glass-panel">
+        <button class="action-btn" onclick="game.feed()">
+            <span class="btn-icon">🍤</span>
+            <span>Feed</span>
+        </button>
+        <button class="action-btn" onclick="game.play()">
+            <span class="btn-icon">🎮</span>
+            <span>Play</span>
+        </button>
+        <button class="action-btn" onclick="game.clean()">
+            <span class="btn-icon">🧼</span>
+            <span>Clean</span>
+        </button>
+        <button class="action-btn" onclick="game.startConversation()">
+            <span class="btn-icon">💬</span>
+            <span>Talk</span>
+        </button>
+        <button class="action-btn" onclick="game.wordScramble()">
+            <span class="btn-icon">🔤</span>
+            <span>Scramble</span>
+        </button>
+        <button class="action-btn" onclick="game.sentenceBuilder()">
+            <span class="btn-icon">📝</span>
+            <span>Sentence</span>
+        </button>
+        <button class="action-btn" onclick="game.oceanFactsQuiz()">
+            <span class="btn-icon">🌊</span>
+            <span>Facts</span>
+        </button>
+    </div>
+
+    <!-- Modal Overlay -->
+    <div id="modal-overlay">
+        <div class="modal" id="modal-content">
+            <button class="modal-close" onclick="game.closeModal()">×</button>
+            <h2 class="modal-title" id="modal-title">Modal Title</h2>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <script>
+        // Game Engine - Will be implemented in next step
+        class PremiumOctoPetGame {
+            constructor() {
+                this.stats = {
+                    hunger: 100,
+                    happiness: 100,
+                    hygiene: 100
+                };
+                this.mood = 'happy';
+                this.language = 'en'; // Default language
+
+                // Educational features
+                this.level = 1;
+                this.xp = 0;
+                this.achievements = [];
+                this.vocabularyIndex = 0;
+                this.conversationCount = 0;
+                this.dailyChallengeCompleted = false;
+                this.factsLearned = 0;
+                this.lastHint = null; // Track last hint to avoid repetition
+
+                // Dynamic Stat-Based Speech Messages
+                this.statMessages = {
+                    hunger: {
+                        critical: [ // 0-20%
+                            "I'm starving! I can barely move... 😵",
+                            "So hungry... everything is spinning... 🌪️",
+                            "Feed me NOW or I'll faint! 💫",
+                            "My stomach is eating itself! Help! 😭",
+                            "I'm about to pass out from hunger... 🥴"
+                        ],
+                        veryLow: [ // 21-40%
+                            "I'm SO hungry! My tummy is growling! 🐻",
+                            "Please feed me soon, I'm really hungry! 🍽️",
+                            "I need food desperately! 😢",
+                            "Hunger is taking over... must eat! 🦑",
+                            "My energy is so low... food please! ⚡"
+                        ],
+                        low: [ // 41-60%
+                            "Getting pretty hungry here... 🤔",
+                            "I could use some food right about now! 😊",
+                            "My tummy is starting to rumble! 🎵",
+                            "Food would be nice soon! 🍤",
+                            "Starting to feel peckish! 😋"
+                        ],
+                        good: [ // 61-80%
+                            "I'm doing okay, but a snack wouldn't hurt! 😌",
+                            "Not too hungry, but food is always welcome! 🌟",
+                            "Feeling decent, maybe a little bite? 🦐",
+                            "Could eat a little something! ✨",
+                            "I'm alright for now! 👍"
+                        ],
+                        full: [ // 81-100%
+                            "I'm perfectly satisfied! So full! 😊",
+                            "My tummy is happy and full! 🎉",
+                            "No more food needed, I'm great! ✨",
+                            "Totally satisfied with my meal! 🌈",
+                            "Couldn't eat another bite! So content! 💚"
+                        ]
+                    },
+                    happiness: {
+                        critical: [ // 0-20%
+                            "I'm so sad... nothing feels right... 😢",
+                            "Why am I so unhappy? 💔",
+                            "Everything is terrible... 🌧️",
+                            "I feel awful... please cheer me up! 😭",
+                            "My heart is heavy with sadness... 🥺"
+                        ],
+                        veryLow: [ // 21-40%
+                            "I'm feeling quite down today... 😔",
+                            "Not in a good mood at all... 😕",
+                            "Could really use some fun right now! 🎮",
+                            "Feeling blue... need something fun! 💙",
+                            "I'm not happy... play with me? 🎪"
+                        ],
+                        low: [ // 41-60%
+                            "I'm feeling a bit meh... 😐",
+                            "Could be happier, honestly! 🤷",
+                            "Not sad, but not excited either... 😶",
+                            "Life feels kind of boring right now! 📺",
+                            "I need something to lift my spirits! 🎈"
+                        ],
+                        good: [ // 61-80%
+                            "I'm feeling pretty good! 😊",
+                            "Life is treating me well! ☀️",
+                            "Quite content with how things are! 🌻",
+                            "I'm in a decent mood! 😌",
+                            "Feeling happy enough! 🌟"
+                        ],
+                        excellent: [ // 81-100%
+                            "I'm SO HAPPY! Life is amazing! 🎉",
+                            "This is the BEST day ever! 🌈",
+                            "I'm bursting with joy! 💖",
+                            "Couldn't be happier if I tried! ✨",
+                            "Pure bliss! I love everything! 🎊"
+                        ]
+                    },
+                    hygiene: {
+                        critical: [ // 0-20%
+                            "I'm absolutely filthy! This is disgusting! 🤢",
+                            "I smell terrible... need a bath NOW! 🚿",
+                            "I can't stand being this dirty! 🦠",
+                            "Please clean me, I'm covered in gunk! 💩",
+                            "This is unbearable! I'm so gross! 🤮"
+                        ],
+                        veryLow: [ // 21-40%
+                            "I'm getting really dirty... 😷",
+                            "Starting to smell bad... bath time! 🧼",
+                            "I need to get clean soon! 🛁",
+                            "Feeling icky and grimy! 😣",
+                            "Yuck! I need a good scrub! 🧽"
+                        ],
+                        low: [ // 41-60%
+                            "I could use a cleaning... 🤔",
+                            "Not the cleanest I've been... 💭",
+                            "A bath would be nice soon! 🌊",
+                            "Feeling a bit grubby! 😬",
+                            "Could freshen up a bit! 💦"
+                        ],
+                        good: [ // 61-80%
+                            "I'm pretty clean! Feeling fresh! 😊",
+                            "My hygiene is decent! ✨",
+                            "Not too dirty, doing alright! 🌟",
+                            "Fairly clean and comfortable! 😌",
+                            "I'm in okay shape, cleanliness-wise! 👌"
+                        ],
+                        pristine: [ // 81-100%
+                            "I'm SPARKLING clean! So fresh! ✨",
+                            "Squeaky clean and loving it! 🧼",
+                            "I smell wonderful! So pristine! 🌸",
+                            "Perfectly clean and shiny! 💎",
+                            "Never felt cleaner! I'm immaculate! 🌟"
+                        ]
+                    }
+                };
+
+                // Translations
+                this.translations = {
+                    tr: {
+                        // Stats
+                        hunger: 'Açlık',
+                        happiness: 'Mutluluk',
+                        hygiene: 'Hijyen',
+                        // Action Buttons
+                        feed: 'Besle',
+                        play: 'Oyna',
+                        clean: 'Temizle',
+                        talk: 'Konuş',
+                        scramble: 'Karıştır',
+                        sentence: 'Cümle',
+                        facts: 'Bilgiler',
+                        // Footer
+                        madeWithLove: 'Sevgiyle kodlandı 💜',
+                        about: 'Hakkımda',
+                        privacy: 'Gizlilik Politikası',
+                        terms: 'Kullanım Koşulları',
+                        // Level
+                        level: 'Seviye',
+                        // Common
+                        close: 'Kapat'
+                    },
+                    en: {
+                        // Stats
+                        hunger: 'Hunger',
+                        happiness: 'Happiness',
+                        hygiene: 'Hygiene',
+                        // Action Buttons
+                        feed: 'Feed',
+                        play: 'Play',
+                        clean: 'Clean',
+                        talk: 'Talk',
+                        scramble: 'Scramble',
+                        sentence: 'Sentence',
+                        facts: 'Facts',
+                        // Footer
+                        madeWithLove: 'Made with love 💜',
+                        about: 'About',
+                        privacy: 'Privacy Policy',
+                        terms: 'Terms of Service',
+                        // Level
+                        level: 'Level',
+                        // Common
+                        close: 'Close'
+                    }
+                };
+
+                // Vocabulary database
+                this.vocabulary = [
+                    { word: 'Magnificent', def: 'extraordinarily beautiful or impressive' },
+                    { word: 'Aquatic', def: 'relating to water; living in water' },
+                    { word: 'Harmony', def: 'agreement or peaceful coexistence' },
+                    { word: 'Resilient', def: 'able to recover quickly from difficulties' },
+                    { word: 'Luminous', def: 'giving off light; bright or shining' },
+                    { word: 'Compassion', def: 'sympathetic concern for others\' suffering' },
+                    { word: 'Perseverance', def: 'continued effort despite difficulties' },
+                    { word: 'Curiosity', def: 'a strong desire to know or learn something' },
+                    { word: 'Tranquil', def: 'free from disturbance; calm and peaceful' },
+                    { word: 'Nurture', def: 'to care for and encourage growth' }
+                ];
+
+                // Word Scramble words
+                this.scrambleWords = [
+                    { word: 'DOLPHIN', hint: 'A smart marine mammal' },
+                    { word: 'TREASURE', hint: 'Valuable items hidden underwater' },
+                    { word: 'SUBMARINE', hint: 'A vessel that travels underwater' },
+                    { word: 'JELLYFISH', hint: 'A transparent sea creature' },
+                    { word: 'OCTOPUS', hint: 'An 8-armed sea creature (me!)' },
+                    { word: 'CURRENT', hint: 'Water flowing in one direction' },
+                    { word: 'HORIZON', hint: 'Where sea meets sky' },
+                    { word: 'ADVENTURE', hint: 'Exciting and daring experience' },
+                    { word: 'CORAL', hint: 'Colorful underwater structures' },
+                    { word: 'STARFISH', hint: 'Star-shaped sea animal' },
+                    { word: 'CAPTAIN', hint: 'Leader of a ship' },
+                    { word: 'ANCHOR', hint: 'Heavy object that holds ships in place' },
+                    { word: 'SEAWEED', hint: 'Green plants growing in the ocean' },
+                    { word: 'TURTLE', hint: 'Slow reptile with a shell' },
+                    { word: 'SHIPWRECK', hint: 'Sunken, damaged ship' },
+                    { word: 'WAVE', hint: 'Water moving in the ocean' },
+                    { word: 'PIRATE', hint: 'Ocean robber on a ship' },
+                    { word: 'ISLAND', hint: 'Land surrounded by water' }
+                ];
+
+                // Sentence Builder patterns
+                this.sentencePatterns = [
+                    {
+                        correct: ['The', 'octopus', 'swims', 'gracefully'],
+                        words: ['gracefully', 'The', 'swims', 'octopus'],
+                        hint: 'Make a sentence about swimming'
+                    },
+                    {
+                        correct: ['I', 'love', 'the', 'ocean'],
+                        words: ['ocean', 'love', 'the', 'I'],
+                        hint: 'Express love for the ocean'
+                    },
+                    {
+                        correct: ['Fish', 'live', 'in', 'water'],
+                        words: ['water', 'in', 'Fish', 'live'],
+                        hint: 'Where do fish live?'
+                    },
+                    {
+                        correct: ['We', 'explore', 'the', 'deep', 'sea'],
+                        words: ['deep', 'the', 'explore', 'sea', 'We'],
+                        hint: 'What do we explore?'
+                    },
+                    {
+                        correct: ['Dolphins', 'are', 'very', 'intelligent'],
+                        words: ['intelligent', 'very', 'are', 'Dolphins'],
+                        hint: 'Describe dolphins'
+                    },
+                    {
+                        correct: ['The', 'whale', 'sings', 'a', 'beautiful', 'song'],
+                        words: ['song', 'beautiful', 'a', 'whale', 'The', 'sings'],
+                        hint: 'What does the whale do?'
+                    },
+                    {
+                        correct: ['Sea', 'turtles', 'swim', 'long', 'distances'],
+                        words: ['distances', 'long', 'swim', 'turtles', 'Sea'],
+                        hint: 'What do sea turtles do?'
+                    },
+                    {
+                        correct: ['Coral', 'reefs', 'protect', 'many', 'fish'],
+                        words: ['fish', 'many', 'protect', 'reefs', 'Coral'],
+                        hint: 'What do coral reefs do?'
+                    },
+                    {
+                        correct: ['I', 'enjoy', 'playing', 'in', 'the', 'waves'],
+                        words: ['waves', 'the', 'in', 'playing', 'enjoy', 'I'],
+                        hint: 'Express joy about waves'
+                    },
+                    {
+                        correct: ['The', 'ocean', 'is', 'full', 'of', 'wonders'],
+                        words: ['wonders', 'of', 'full', 'is', 'ocean', 'The'],
+                        hint: 'Describe the ocean'
+                    }
+                ];
+
+                // Ocean Facts Quiz
+                this.oceanFacts = [
+                    {
+                        question: 'What percentage of Earth is covered by oceans?',
+                        options: ['50%', '71%', '85%'],
+                        correct: 1,
+                        fact: 'About 71% of Earth\'s surface is covered by oceans!'
+                    },
+                    {
+                        question: 'Which ocean is the largest?',
+                        options: ['Atlantic', 'Pacific', 'Indian'],
+                        correct: 1,
+                        fact: 'The Pacific Ocean is the largest and deepest ocean!'
+                    },
+                    {
+                        question: 'How many hearts does an octopus have?',
+                        options: ['1', '2', '3'],
+                        correct: 2,
+                        fact: 'Octopuses have 3 hearts! Two pump blood to gills, one to the body!'
+                    },
+                    {
+                        question: 'What is the deepest part of the ocean called?',
+                        options: ['Mariana Trench', 'Atlantic Canyon', 'Pacific Deep'],
+                        correct: 0,
+                        fact: 'The Mariana Trench is nearly 11,000 meters deep!'
+                    },
+                    {
+                        question: 'Which sea animal is the fastest swimmer?',
+                        options: ['Dolphin', 'Sailfish', 'Shark'],
+                        correct: 1,
+                        fact: 'Sailfish can swim up to 110 km/h - impressive!'
+                    },
+                    {
+                        question: 'What do whales mostly eat?',
+                        options: ['Big fish', 'Tiny krill', 'Seaweed'],
+                        correct: 1,
+                        fact: 'Most whales eat tiny krill and plankton by filtering water!'
+                    },
+                    {
+                        question: 'How long can a sea turtle hold its breath?',
+                        options: ['10 minutes', '2 hours', '7 hours'],
+                        correct: 2,
+                        fact: 'Sea turtles can hold their breath for up to 7 hours when resting!'
+                    },
+                    {
+                        question: 'What color is an octopus\' blood?',
+                        options: ['Red', 'Blue', 'Green'],
+                        correct: 1,
+                        fact: 'Octopus blood is blue because it contains copper instead of iron!'
+                    },
+                    {
+                        question: 'How many species of fish exist in the ocean?',
+                        options: ['About 3,000', 'About 20,000', 'Over 30,000'],
+                        correct: 2,
+                        fact: 'There are over 30,000 species of fish in the ocean!'
+                    },
+                    {
+                        question: 'What is the largest animal on Earth?',
+                        options: ['African Elephant', 'Blue Whale', 'Shark'],
+                        correct: 1,
+                        fact: 'The Blue Whale can grow up to 30 meters long - amazing!'
+                    },
+                    {
+                        question: 'How much of the ocean has been explored?',
+                        options: ['Less than 5%', 'About 50%', 'Almost 90%'],
+                        correct: 0,
+                        fact: 'We\'ve explored less than 5% of the ocean - so mysterious!'
+                    },
+                    {
+                        question: 'Can fish sleep?',
+                        options: ['No, never', 'Yes, they rest', 'Only sharks'],
+                        correct: 1,
+                        fact: 'Fish do rest and sleep, but they don\'t have eyelids to close!'
+                    }
+                ];
+
+                // Daily Challenges
+                this.dailyChallenges = [
+                    { task: 'Feed me 3 times correctly', progress: 0, goal: 3, xp: 50, type: 'feed' },
+                    { task: 'Complete all 3 mini-games', progress: 0, goal: 3, xp: 60, type: 'games' },
+                    { task: 'Answer 10 English questions', progress: 0, goal: 10, xp: 80, type: 'talk' },
+                    { task: 'Learn 5 ocean facts', progress: 0, goal: 5, xp: 70, type: 'facts' }
+                ];
+                this.currentChallenge = this.dailyChallenges[Math.floor(Math.random() * this.dailyChallenges.length)];
+
+                this.init();
+            }
+
+            init() {
+                this.setupEnvironment();
+                // setupTentacles() removed - PNG has tentacles
+                this.setupInput();
+                this.startGameLoop();
+                this.showSpeech("Hello! I'm your OctoPet!", 3000);
+                console.log("🐙 Premium OctoPet initialized!");
+            }
+
+            setupEnvironment() {
+                const oceanBg = document.getElementById('ocean-bg');
+
+                // === PREMIUM BUBBLES ===
+                // Initial burst of bubbles
+                for (let i = 0; i < 15; i++) {
+                    setTimeout(() => this.createPremiumBubble(), i * 200);
+                }
+
+                // Continuous bubble generation
+                setInterval(() => this.createPremiumBubble(), 2000 + Math.random() * 2000);
+
+                // === PREMIUM SEAWEED ===
+                const seaweedPositions = [8, 25, 45, 68, 85, 95];
+                seaweedPositions.forEach((pos, index) => {
+                    const seaweed = document.createElement('div');
+                    seaweed.className = 'seaweed';
+                    seaweed.style.left = `${pos}%`;
+
+                    const stem = document.createElement('div');
+                    stem.className = 'seaweed-stem';
+                    stem.style.animationDelay = `${index * 0.8}s`;
+                    stem.style.height = `${150 + Math.random() * 80}px`;
+
+                    // Add leaves
+                    for (let i = 0; i < 4; i++) {
+                        const leaf = document.createElement('div');
+                        leaf.className = 'seaweed-leaf';
+                        stem.appendChild(leaf);
+                    }
+
+                    seaweed.appendChild(stem);
+                    oceanBg.appendChild(seaweed);
+                });
+
+                // === PREMIUM CORAL ===
+                const coralPositions = [15, 38, 58, 78];
+                coralPositions.forEach((pos, index) => {
+                    const coral = document.createElement('div');
+                    coral.className = 'coral';
+                    coral.style.left = `${pos}%`;
+
+                    // Create multi-branch coral
+                    for (let i = 0; i < 4; i++) {
+                        const branch = document.createElement('div');
+                        branch.className = 'coral-branch';
+                        coral.appendChild(branch);
+                    }
+
+                    oceanBg.appendChild(coral);
+                });
+
+                // === FLOATING PARTICLES ===
+                for (let i = 0; i < 30; i++) {
+                    setTimeout(() => this.createFloatingParticle(), i * 500);
+                }
+                setInterval(() => this.createFloatingParticle(), 3000);
+
+                console.log("🌊 Premium ocean environment loaded!");
+            }
+
+            createPremiumBubble() {
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble';
+
+                const size = 15 + Math.random() * 35; // 15-50px
+                bubble.style.width = `${size}px`;
+                bubble.style.height = `${size}px`;
+                bubble.style.left = `${Math.random() * 100}%`;
+                bubble.style.bottom = '-60px';
+
+                const drift = (Math.random() - 0.5) * 150;
+                bubble.style.setProperty('--bubble-drift', `${drift}px`);
+
+                const duration = 8 + Math.random() * 8; // 8-16s
+                bubble.style.animationDuration = `${duration}s`;
+                bubble.style.animationDelay = `${Math.random() * 2}s`;
+
+                document.getElementById('ocean-bg').appendChild(bubble);
+
+                setTimeout(() => bubble.remove(), (duration + 2) * 1000);
+            }
+
+            createFloatingParticle() {
+                const particle = document.createElement('div');
+                particle.className = 'particle-float';
+
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.top = `${Math.random() * 100}%`;
+
+                const driftX = (Math.random() - 0.5) * 200;
+                const driftY = -100 - Math.random() * 100;
+                particle.style.setProperty('--drift-x', `${driftX}px`);
+                particle.style.setProperty('--drift-y', `${driftY}px`);
+
+                particle.style.animationDuration = `${10 + Math.random() * 10}s`;
+
+                document.getElementById('ocean-bg').appendChild(particle);
+
+                setTimeout(() => particle.remove(), 20000);
+            }
+
+            setupTentacles() {
+                const container = document.getElementById('tentacles');
+                const tentacleCount = 6; // Updated to 6 tentacles
+
+                for (let i = 0; i < tentacleCount; i++) {
+                    const tentacle = document.createElement('div');
+                    tentacle.className = 'tentacle';
+
+                    // Position tentacles in a fan shape (adjusted for 6 tentacles)
+                    const angle = (i - 2.5) * 25;
+                    const offset = Math.abs(i - 2.5) * 10;
+                    tentacle.style.left = `${50 + (i - 2.5) * 35}%`;
+                    tentacle.style.transform = `rotate(${angle}deg)`;
+
+                    // Create segments
+                    for (let j = 0; j < 4; j++) {
+                        const segment = document.createElement('div');
+                        segment.className = 'tentacle-segment';
+                        segment.style.top = `${j * 22}px`;
+                        segment.style.width = `${28 - j * 3}px`;
+                        segment.style.left = `${j * 1.5}px`;
+
+                        // Animate each segment
+                        const delay = (i * 0.1) + (j * 0.05);
+                        const duration = 2 + Math.random();
+                        segment.style.animation = `tentacle-wave ${duration}s ease-in-out ${delay}s infinite`;
+
+                        tentacle.appendChild(segment);
+                    }
+
+                    container.appendChild(tentacle);
+                }
+
+                // Add tentacle wave animation
+                const style = document.createElement('style');
+                style.textContent = `
+                    @keyframes tentacle-wave {
+                        0%, 100% { transform: rotate(-10deg); }
+                        50% { transform: rotate(10deg); }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+
+            setupInput() {
+                // Eye tracking
+                document.addEventListener('mousemove', (e) => {
+                    const pupils = document.querySelectorAll('.pupil');
+                    pupils.forEach(pupil => {
+                        const eye = pupil.parentElement;
+                        const rect = eye.getBoundingClientRect();
+                        const eyeX = rect.left + rect.width / 2;
+                        const eyeY = rect.top + rect.height / 2;
+
+                        const angle = Math.atan2(e.clientY - eyeY, e.clientX - eyeX);
+                        const distance = Math.min(8, Math.hypot(e.clientX - eyeX, e.clientY - eyeY) / 15);
+
+                        const x = Math.cos(angle) * distance;
+                        const y = Math.sin(angle) * distance;
+
+                        pupil.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
+                    });
+                });
+
+                // Pet interaction
+                document.getElementById('octopus').addEventListener('click', () => {
+                    this.pet();
+                });
+            }
+
+            startGameLoop() {
+                // Stats decay - FASTER for more engaging gameplay
+                setInterval(() => {
+                    this.stats.hunger = Math.max(0, this.stats.hunger - 2.5);
+                    this.stats.happiness = Math.max(0, this.stats.happiness - 1.8);
+                    this.stats.hygiene = Math.max(0, this.stats.hygiene - 2.0);
+                    this.updateUI();
+                    this.checkMood();
+                }, 5000); // Every 5 seconds (faster!)
+            }
+
+            updateUI() {
+                // Update stat bars
+                ['hunger', 'happiness', 'hygiene'].forEach(stat => {
+                    const fill = document.getElementById(`${stat}-fill`);
+                    const value = this.stats[stat];
+                    fill.style.width = `${value}%`;
+                    fill.querySelector('.stat-value').textContent = `${Math.round(value)}%`;
+
+                    // Color based on value
+                    if (value > 60) {
+                        fill.style.background = `linear-gradient(90deg, var(--status-full), var(--status-full))`;
+                    } else if (value > 30) {
+                        fill.style.background = `linear-gradient(90deg, var(--status-mid), var(--status-mid))`;
+                    } else {
+                        fill.style.background = `linear-gradient(90deg, var(--status-low), var(--status-low))`;
+                    }
+                });
+
+                // Save to localStorage
+                localStorage.setItem('octopet_stats', JSON.stringify(this.stats));
+            }
+
+            checkMood() {
+                const octopus = document.getElementById('octopus');
+                const mouth = octopus.querySelector('.mouth');
+
+                const avgStat = (this.stats.hunger + this.stats.happiness + this.stats.hygiene) / 3;
+
+                // Update mood visual
+                if (avgStat > 60) {
+                    this.setMood('happy');
+                } else if (avgStat > 30) {
+                    this.setMood('neutral');
+                } else {
+                    this.setMood('sad');
+                }
+
+                // Dynamic stat-based speech (20% chance to comment on worst stat)
+                if (Math.random() < 0.2) {
+                    const worstStat = this.getWorstStat();
+                    if (worstStat) {
+                        this.speakAboutStat(worstStat.name, worstStat.value);
+                    }
+                }
+            }
+
+            getWorstStat() {
+                const stats = [
+                    { name: 'hunger', value: this.stats.hunger },
+                    { name: 'happiness', value: this.stats.happiness },
+                    { name: 'hygiene', value: this.stats.hygiene }
+                ];
+
+                // Sort by value (lowest first)
+                stats.sort((a, b) => a.value - b.value);
+
+                // Only comment if it's below 80%
+                if (stats[0].value < 80) {
+                    return stats[0];
+                }
+                return null;
+            }
+
+            speakAboutStat(statName, value) {
+                const messages = this.statMessages[statName];
+                let level;
+
+                if (value <= 20) {
+                    level = 'critical';
+                } else if (value <= 40) {
+                    level = 'veryLow';
+                } else if (value <= 60) {
+                    level = 'low';
+                } else if (value <= 80) {
+                    level = 'good';
+                } else {
+                    // Above 80%, use the highest level
+                    if (statName === 'hunger') level = 'full';
+                    else if (statName === 'happiness') level = 'excellent';
+                    else level = 'pristine';
+                }
+
+                const possibleMessages = messages[level];
+                const randomMessage = possibleMessages[Math.floor(Math.random() * possibleMessages.length)];
+
+                this.showSpeech(randomMessage, 4000);
+            }
+
+            setMood(mood) {
+                if (this.mood === mood) return;
+                this.mood = mood;
+
+                const octopus = document.getElementById('octopus');
+                const mouth = octopus.querySelector('.mouth');
+
+                octopus.className = mood;
+                mouth.className = `mouth ${mood}`;
+            }
+
+            showSpeech(text, duration = 2000) {
+                const bubble = document.getElementById('speech-bubble');
+                bubble.textContent = text;
+                bubble.classList.add('show');
+
+                setTimeout(() => {
+                    bubble.classList.remove('show');
+                }, duration);
+            }
+
+
+            // === AUDIO ENGINE ===
+            createAudio() {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+
+                const playTone = (freq, duration, type = 'sine', volume = 0.3) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, ctx.currentTime);
+                    gain.gain.setValueAtTime(volume, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + duration);
+                    osc.start(ctx.currentTime);
+                    osc.stop(ctx.currentTime + duration);
+                };
+
+                return {
+                    ctx,
+                    playClick: () => playTone(800, 0.05),
+                    playSuccess: () => {
+                        playTone(523, 0.1);
+                        setTimeout(() => playTone(659, 0.1), 100);
+                        setTimeout(() => playTone(784, 0.2), 200);
+                    },
+                    playError: () => playTone(200, 0.3, 'sawtooth'),
+                    playEat: () => {
+                        playTone(400, 0.1);
+                        setTimeout(() => playTone(500, 0.1), 100);
+                    },
+                    playHappy: () => {
+                        for (let i = 0; i < 3; i++) {
+                            setTimeout(() => playTone(600 + i * 100, 0.15, 'triangle'), i * 100);
+                        }
+                    }
+                };
+            }
+
+            // === PARTICLE SYSTEM ===
+            createParticles(x, y, emoji, count = 8) {
+                for (let i = 0; i < count; i++) {
+                    setTimeout(() => {
+                        const particle = document.createElement('div');
+                        particle.textContent = emoji;
+                        particle.className = 'particle';
+                        particle.style.left = `${x}px`;
+                        particle.style.top = `${y}px`;
+                        particle.style.fontSize = '1.5rem';
+                        document.body.appendChild(particle);
+
+                        const angle = (Math.PI * 2 * i) / count;
+                        const distance = 60 + Math.random() * 40;
+                        const tx = Math.cos(angle) * distance;
+                        const ty = Math.sin(angle) * distance;
+
+                        particle.animate([
+                            { transform: 'translate(0, 0) scale(0) rotate(0deg)', opacity: 1 },
+                            { transform: `translate(${tx}px, ${ty}px) scale(1) rotate(360deg)`, opacity: 0 }
+                        ], {
+                            duration: 800 + Math.random() * 400,
+                            easing: 'cubic-bezier(0, 0.5, 0.5, 1)'
+                        });
+
+                        setTimeout(() => particle.remove(), 1200);
+                    }, i * 50);
+                }
+            }
+
+            // === FEED SYSTEM ===
+            feed() {
+                const audio = this.createAudio();
+                audio.playClick();
+
+                // MEGA FOOD DATABASE with 25+ items!
+                const foodDB = {
+                    protein: [
+                        { name: 'Shrimp', emoji: '🦐', value: 35, rarity: 'common' },
+                        { name: 'Fish', emoji: '🐟', value: 40, rarity: 'common' },
+                        { name: 'Crab', emoji: '🦀', value: 45, rarity: 'uncommon' },
+                        { name: 'Lobster', emoji: '🦞', value: 55, rarity: 'rare' },
+                        { name: 'Squid', emoji: '🦑', value: 38, rarity: 'common' },
+                        { name: 'Oyster', emoji: '🦪', value: 42, rarity: 'uncommon' },
+                    ],
+                    veggie: [
+                        { name: 'Seaweed', emoji: '🌿', value: 28, rarity: 'common' },
+                        { name: 'Kelp', emoji: '🥬', value: 30, rarity: 'common' },
+                        { name: 'Sea Lettuce', emoji: '🥗', value: 32, rarity: 'uncommon' },
+                        { name: 'Algae Ball', emoji: '🟢', value: 25, rarity: 'common' },
+                    ],
+                    treat: [
+                        { name: 'Pearl', emoji: '⚪', value: 20, rarity: 'rare' },
+                        { name: 'Star Cookie', emoji: '⭐', value: 22, rarity: 'uncommon' },
+                        { name: 'Coral Candy', emoji: '🍬', value: 18, rarity: 'uncommon' },
+                        { name: 'Shell Cake', emoji: '🧁', value: 28, rarity: 'rare' },
+                    ],
+                    junk: [
+                        { name: 'Plastic', emoji: '💼', value: -10, rarity: 'common' },
+                        { name: 'Old Boot', emoji: '👢', value: -15, rarity: 'common' },
+                    ],
+                    special: [
+                        { name: 'Golden Fish', emoji: '🐠', value: 70, rarity: 'legendary' },
+                        { name: 'Magic Pearl', emoji: '✨', value: 65, rarity: 'legendary' },
+                        { name: 'Rainbow Shell', emoji: '🌈', value: 60, rarity: 'legendary' },
+                    ]
+                };
+
+                // MEGA HINT DATABASE - Lots of variety!
+                const hintDatabase = {
+                    protein: [
+                        "I'm STARVING! Need PROTEIN NOW! 🍖💪",
+                        "Something with protein please! 🦐",
+                        "I need energy! Gimme seafood! 🐟",
+                        "Feed me something meaty! 🦀",
+                        "My tummy wants protein! 🦞",
+                        "I'm craving something from the sea! 🐙",
+                        "Protein power! I need strength! 💪🦐"
+                    ],
+                    veggie: [
+                        "I'd love something green! 🌿",
+                        "Something light and fresh please! 🥗",
+                        "Veggies sound good right now! 🥬",
+                        "I want to eat healthy! Give me greens! 🌱",
+                        "Fresh and crunchy! Something veggie! 🟢",
+                        "Plants, please! I'm feeling healthy! 🌿✨"
+                    ],
+                    treat: [
+                        "Can I have a treat? 🌟",
+                        "A small treat! ✨",
+                        "Something sweet would be nice! 🍬",
+                        "I deserve a treat today! 🎁",
+                        "Ooh, can I get something special? 💫",
+                        "A little snack treat please! ⭐",
+                        "Treat time! Something yummy! 🧁"
+                    ],
+                    special: [
+                        "I'm feeling EXTRA hungry... something LEGENDARY? 🌟✨👑",
+                        "Do you have anything SUPER special? 👑💎",
+                        "I want something MAGICAL! ✨🌈",
+                        "LEGENDARY food please! I'm special today! 🏆"
+                    ]
+                };
+
+                // Dynamic hints based on hunger level
+                const hunger = this.stats.hunger;
+                let targetCat, hintOptions;
+
+                if (hunger < 30) {
+                    // Very hungry - needs protein
+                    targetCat = 'protein';
+                    hintOptions = hintDatabase.protein;
+                } else if (hunger < 60) {
+                    // Medium hungry - varied diet
+                    const opts = ['protein', 'veggie', 'treat'];
+                    targetCat = opts[Math.floor(Math.random() * opts.length)];
+                    hintOptions = hintDatabase[targetCat];
+                } else {
+                    // Not very hungry - light food
+                    const opts = ['treat', 'veggie'];
+                    targetCat = opts[Math.floor(Math.random() * opts.length)];
+                    hintOptions = hintDatabase[targetCat];
+                }
+
+                // 3% chance for special legendary request
+                if (Math.random() < 0.03) {
+                    targetCat = 'special';
+                    hintOptions = hintDatabase.special;
+                }
+
+                // Pick a hint that's different from last time!
+                let hint;
+                const availableHints = hintOptions.filter(h => h !== this.lastHint);
+                if (availableHints.length > 0) {
+                    hint = availableHints[Math.floor(Math.random() * availableHints.length)];
+                } else {
+                    // Fallback if somehow all filtered out
+                    hint = hintOptions[Math.floor(Math.random() * hintOptions.length)];
+                }
+
+                // Remember this hint for next time
+                this.lastHint = hint;
+
+                const correctFoods = foodDB[targetCat];
+                const correctFood = correctFoods[Math.floor(Math.random() * correctFoods.length)];
+
+                // Select 2 distractors from other categories
+                const allCats = Object.keys(foodDB);
+                const distractors = [];
+                while (distractors.length < 2) {
+                    const randCat = allCats[Math.floor(Math.random() * allCats.length)];
+                    if (randCat !== targetCat) {
+                        const randFoods = foodDB[randCat];
+                        const randFood = randFoods[Math.floor(Math.random() * randFoods.length)];
+                        if (!distractors.find(f => f.name === randFood.name)) {
+                            distractors.push(randFood);
+                        }
+                    }
+                }
+
+                const shuffled = [correctFood, ...distractors].sort(() => Math.random() - 0.5);
+
+                // Show modal
+                this.showSpeech(hint, 10000);
+                const modal = document.getElementById('modal-overlay');
+                const title = document.getElementById('modal-title');
+                const body = document.getElementById('modal-body');
+
+                title.textContent = '🍽️ What should I eat?';
+                body.innerHTML = `
+                    <div style="
+                        background: linear-gradient(135deg, #ffeaa7, #fdcb6e);
+                        padding: 18px 25px;
+                        border-radius: 18px 22px 20px 24px;
+                        margin-bottom: 25px;
+                        border: 3px solid #e17055;
+                        box-shadow: 4px 4px 0 rgba(225, 112, 85, 0.3);
+                        text-align: center;
+                    ">
+                        <div style="font-size: 1.15rem; font-weight: 800; color: #2d3436; margin-bottom: 8px;">
+                            💭 I want...
+                        </div>
+                        <div style="font-size: 1.35rem; font-weight: 900; color: #d63031; text-shadow: 2px 2px 0 rgba(255,255,255,0.5);">
+                            ${hint}
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+                        ${shuffled.map((food, i) => {
+                    const rarityColors = {
+                        common: 'linear-gradient(135deg, #95a5a6, #7f8c8d)',
+                        uncommon: 'linear-gradient(135deg, #3498db, #2980b9)',
+                        rare: 'linear-gradient(135deg, #9b59b6, #8e44ad)',
+                        legendary: 'linear-gradient(135deg, #f39c12, #e67e22)'
+                    };
+                    const borderColors = {
+                        common: '#7f8c8d',
+                        uncommon: '#2980b9',
+                        rare: '#8e44ad',
+                        legendary: '#d35400'
+                    };
+                    return `
+                            <div class="food-item" data-index="${i}" style="
+                                width: 130px;
+                                padding: 20px;
+                                background: ${rarityColors[food.rarity]};
+                                border-radius: 20px;
+                                cursor: pointer;
+                                transition: all 0.3s ease;
+                                text-align: center;
+                                box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+                                border: 3px solid ${borderColors[food.rarity]};
+                            ">
+                                <div style="font-size: 3.5rem; margin-bottom: 10px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));">${food.emoji}</div>
+                                <div style="font-weight: 700; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.4); margin-bottom: 5px;">${food.name}</div>
+                                <div style="font-size: 0.7rem; color: rgba(255,255,255,0.9); text-transform: uppercase; font-weight: 600;">${food.rarity}</div>
+                            </div>
+                        `;
+                }).join('')}
+                    </div>
+                `;
+
+                modal.classList.add('active');
+
+                // Add event listeners
+                document.querySelectorAll('.food-item').forEach((item, i) => {
+                    item.addEventListener('mouseenter', () => {
+                        item.style.transform = 'scale(1.1) translateY(-5px)';
+                        item.style.boxShadow = '0 10px 25px rgba(0,0,0,0.3)';
+                    });
+                    item.addEventListener('mouseleave', () => {
+                        item.style.transform = 'scale(1) translateY(0)';
+                        item.style.boxShadow = '0 5px 15px rgba(0,0,0,0.2)';
+                    });
+                    item.addEventListener('click', () => {
+                        this.handleFoodChoice(shuffled[i], correctFood);
+                    });
+                });
+            }
+
+            handleFoodChoice(chosen, correct) {
+                const audio = this.createAudio();
+                this.closeModal();
+
+                const octopus = document.getElementById('octopus');
+                const rect = octopus.getBoundingClientRect();
+
+                if (chosen === correct) {
+                    // CORRECT CHOICE!
+                    audio.playEat();
+                    audio.playSuccess();
+
+                    // Rarity-based bonuses
+                    let multiplier = 1;
+                    let message = `Yummy ${chosen.name}!`;
+                    let extraParticles = chosen.emoji;
+
+                    if (chosen.rarity === 'legendary') {
+                        multiplier = 2.5;
+                        message = `🌟 LEGENDARY ${chosen.name.toUpperCase()}! INCREDIBLE! 🌟`;
+                        audio.playHappy();
+                        extraParticles = '✨';
+                        // Special legendary effect
+                        this.stats.happiness = 100;
+                        setTimeout(() => {
+                            this.showSpeech('I feel LEGENDARY! 👑💫', 2500);
+                            this.createParticles(rect.left + rect.width / 2, rect.top + rect.height / 2, '👑', 15);
+                        }, 1500);
+                    } else if (chosen.rarity === 'rare') {
+                        multiplier = 1.8;
+                        message = `💎 WOW! ${chosen.name}! So RARE! 💎`;
+                        extraParticles = '💫';
+                        this.createParticles(rect.left + rect.width / 2, rect.top + rect.height / 2, '💎', 10);
+                    } else if (chosen.rarity === 'uncommon') {
+                        multiplier = 1.4;
+                        message = `✨ Nice! ${chosen.name} is special! ✨`;
+                        extraParticles = '⭐';
+                    }
+
+                    this.stats.hunger = Math.min(100, this.stats.hunger + (chosen.value * multiplier));
+                    this.stats.happiness = Math.min(100, this.stats.happiness + (12 * multiplier));
+                    this.addXP(Math.floor(20 * multiplier));
+
+                    if (this.currentChallenge && this.currentChallenge.type === 'feed') {
+                        this.currentChallenge.progress++;
+                        this.checkDailyChallenge();
+                    }
+
+                    this.showSpeech(message, 3500);
+                    this.createParticles(rect.left + rect.width / 2, rect.top + rect.height / 2, chosen.emoji, 15);
+                    this.createParticles(rect.left + rect.width / 2, rect.top + rect.height / 2, extraParticles, 12);
+                    this.createParticles(rect.left + rect.width / 2, rect.top + rect.height / 2, '❤️', 8);
+
+                } else {
+                    // WRONG CHOICE
+                    if (chosen.value < 0) {
+                        // Junk food - bad!
+                        audio.playError();
+                        this.stats.hygiene = Math.max(0, this.stats.hygiene - 20);
+                        this.stats.happiness = Math.max(0, this.stats.happiness - 15);
+                        this.showSpeech(`YUCK! ${chosen.name}?! That's GARBAGE! 🤢💩`, 3000);
+                        this.createParticles(rect.left + rect.width / 2, rect.top + rect.height / 2, '💩', 10);
+                        this.createParticles(rect.left + rect.width / 2, rect.top + rect.height / 2, '🤮', 5);
+                    } else {
+                        // Not junk, just not what they wanted
+                        audio.playError();
+                        this.stats.hunger = Math.min(100, this.stats.hunger + chosen.value * 0.4);
+                        this.stats.happiness = Math.max(0, this.stats.happiness - 8);
+                        this.addXP(5);
+
+                        const sadMessages = [
+                            `That's not what I asked for... 😞`,
+                            `I wanted something different! 😕`,
+                            `Not quite what I meant... 😐`,
+                            `Uh... not my favorite... 😅`
+                        ];
+                        this.showSpeech(sadMessages[Math.floor(Math.random() * sadMessages.length)], 2500);
+                        this.createParticles(rect.left + rect.width / 2, rect.top + rect.height / 2, '💔', 6);
+                        this.createParticles(rect.left + rect.width / 2, rect.top + rect.height / 2, '😞', 4);
+                    }
+                }
+
+                this.updateUI();
+                setTimeout(() => this.checkMood(), 500);
+            }
+
+            // === PLAY SYSTEM ===
+            play() {
+                const audio = this.createAudio();
+                audio.playClick();
+
+                const games = [
+                    { name: 'Spelling Challenge', icon: '📝', method: () => this.playSpelling() },
+                    { name: 'Memory Match', icon: '🎴', method: () => this.playMemory() },
+                    { name: 'Quick Click', icon: '⚡', method: () => this.playQuickClick() }
+                ];
+
+                const modal = document.getElementById('modal-overlay');
+                const title = document.getElementById('modal-title');
+                const body = document.getElementById('modal-body');
+
+                title.textContent = '🎮 Let\'s Play!';
+                body.innerHTML = `
+                    <div style="display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; margin-top: 25px; padding: 5px;">
+                        ${games.map((game, i) => {
+                    const colors = [
+                        'linear-gradient(125deg, #ff6b6b 0%, #ee5a6f 100%)',
+                        'linear-gradient(142deg, #4ecdc4 0%, #44a08d 100%)',
+                        'linear-gradient(118deg, #f7b731 0%, #f5a623 100%)'
+                    ];
+                    const rotations = ['-2deg', '1deg', '-1.5deg'];
+                    return `
+                            <div class="game-btn" data-index="${i}" style="
+                                padding: 28px 22px;
+                                background: ${colors[i]};
+                                border-radius: ${15 + i}px ${18 - i}px ${16 + i}px ${17 - i}px;
+                                cursor: pointer;
+                                transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+                                text-align: center;
+                                min-width: 145px;
+                                box-shadow: 0 6px 20px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.2);
+                                border: 2px solid rgba(255,255,255,0.3);
+                                transform: rotate(${rotations[i]});
+                                position: relative;
+                            ">
+                                <div style="font-size: 3.2rem; margin-bottom: 8px; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.2));">${game.icon}</div>
+                                <div style="font-weight: 700; color: white; font-size: 0.92rem; text-shadow: 0 2px 4px rgba(0,0,0,0.3); letter-spacing: 0.3px;">${game.name}</div>
+                            </div>
+                        `;
+                }).join('')}
+                    </div>
+                `;
+
+                modal.classList.add('active');
+
+                document.querySelectorAll('.game-btn').forEach((btn, i) => {
+                    const originalTransform = btn.style.transform;
+                    btn.addEventListener('mouseenter', () => {
+                        btn.style.transform = 'scale(1.12) translateY(-8px) rotate(0deg)';
+                        btn.style.boxShadow = '0 12px 30px rgba(0,0,0,0.35)';
+                    });
+                    btn.addEventListener('mouseleave', () => {
+                        btn.style.transform = originalTransform;
+                        btn.style.boxShadow = '0 6px 20px rgba(0,0,0,0.25)';
+                    });
+                    btn.addEventListener('click', () => {
+                        this.closeModal();
+                        if (this.currentChallenge && this.currentChallenge.type === 'games') {
+                            this.currentChallenge.progress++;
+                            this.checkDailyChallenge();
+                        }
+                        games[i].method();
+                    });
+                });
+            }
+
+            playSpelling() {
+                const words = ['OCEAN', 'CORAL', 'SHELL', 'PEARL', 'WAVE', 'FISH', 'STAR', 'BLUE'];
+                const word = words[Math.floor(Math.random() * words.length)];
+                let currentIndex = 0;
+
+                this.showSpeech(`Spell: ${word}!`, 30000);
+
+                const letters = word.split('');
+                const decoys = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').filter(l => !letters.includes(l));
+
+                // Shuffle letters with decoys (8 total for nice grid)
+                const allLetters = [...letters, ...decoys.sort(() => Math.random() - 0.5).slice(0, 8 - letters.length)]
+                    .sort(() => Math.random() - 0.5);
+
+                // Create modal with letter grid
+                const modal = document.getElementById('modal-overlay');
+                const title = document.getElementById('modal-title');
+                const body = document.getElementById('modal-body');
+
+                title.textContent = `📝 Spell the word!`;
+                body.innerHTML = `
+                    <div style="font-size: 1.05rem; color: #2c3e50; margin-bottom: 25px; text-align: center; font-weight: 600;">
+                        Tap letters to spell: <span style="color: #e74c3c; font-size: 1.4rem; font-weight: 800;">${word}</span>
+                    </div>
+                    <div style="display: flex; flex-wrap: wrap; gap: 12px; max-width: 380px; margin: 0 auto; justify-content: center; padding: 10px;">
+                        ${allLetters.map((letter, i) => {
+                    const colors = [
+                        'linear-gradient(130deg, #ffeaa7, #fdcb6e)',
+                        'linear-gradient(145deg, #a29bfe, #6c5ce7)',
+                        'linear-gradient(120deg, #fd79a8, #e84393)',
+                        'linear-gradient(135deg, #74b9ff, #0984e3)',
+                        'linear-gradient(140deg, #55efc4, #00b894)',
+                        'linear-gradient(125deg, #fab1a0, #e17055)',
+                        'linear-gradient(150deg, #dfe6e9, #b2bec3)',
+                        'linear-gradient(128deg, #ffeaa7, #fdcb6e)'
+                    ];
+                    const rotations = ['-3deg', '2deg', '-1deg', '3deg', '-2deg', '1deg', '-2.5deg', '2.5deg'];
+                    return `
+                            <div class="letter-grid-btn" data-letter="${letter}" data-index="${i}" style="
+                                width: 75px;
+                                height: 75px;
+                                background: ${colors[i % colors.length]};
+                                border: 3px solid rgba(255,255,255,0.6);
+                                border-radius: ${12 + (i % 3)}px ${14 + (i % 2)}px ${13 + (i % 3)}px ${15 - (i % 2)}px;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                font-weight: 900;
+                                font-size: 2rem;
+                                color: white;
+                                cursor: pointer;
+                                box-shadow: 0 5px 15px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.3);
+                                transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+                                user-select: none;
+                                transform: rotate(${rotations[i % rotations.length]});
+                                text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                            ">${letter}</div>
+                        `;
+                }).join('')}
+                    </div>
+                `;
+
+                modal.classList.add('active');
+
+                document.querySelectorAll('.letter-grid-btn').forEach(btn => {
+                    const letter = btn.dataset.letter;
+
+                    btn.addEventListener('mouseenter', () => {
+                        if (!btn.classList.contains('used')) {
+                            btn.style.transform = 'scale(1.1)';
+                            btn.style.boxShadow = '0 6px 16px rgba(0,0,0,0.4)';
+                        }
+                    });
+
+                    btn.addEventListener('mouseleave', () => {
+                        if (!btn.classList.contains('used')) {
+                            btn.style.transform = 'scale(1)';
+                            btn.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
+                        }
+                    });
+
+                    btn.addEventListener('click', () => {
+                        if (btn.classList.contains('used')) return;
+
+                        const audio = this.createAudio();
+
+                        if (letter === word[currentIndex]) {
+                            audio.playClick();
+                            btn.classList.add('used');
+                            btn.style.background = 'linear-gradient(135deg, #4ade80, #22c55e)';
+                            btn.style.color = 'white';
+                            btn.style.borderColor = '#22c55e';
+                            btn.style.transform = 'scale(1.15)';
+                            btn.style.boxShadow = '0 6px 20px rgba(34, 197, 94, 0.6)';
+                            btn.style.cursor = 'default';
+                            currentIndex++;
+
+                            if (currentIndex === word.length) {
+                                setTimeout(() => {
+                                    audio.playSuccess();
+                                    audio.playHappy();
+                                    this.stats.happiness = Math.min(100, this.stats.happiness + 30);
+                                    this.addXP(30); // Big XP reward for spelling!
+                                    this.updateUI();
+                                    this.closeModal();
+                                    this.showSpeech('Perfect spelling! You\'re so smart! 🌟', 3000);
+                                    const octopus = document.getElementById('octopus');
+                                    const rect = octopus.getBoundingClientRect();
+                                    this.createParticles(rect.left + rect.width / 2, rect.top + rect.height / 2, '⭐', 12);
+                                }, 500);
+                            }
+                        } else {
+                            audio.playError();
+                            btn.style.background = 'linear-gradient(135deg, #f87171, #ef4444)';
+                            btn.style.color = 'white';
+                            btn.style.borderColor = '#ef4444';
+                            btn.style.boxShadow = '0 4px 12px rgba(239, 68, 68, 0.6)';
+                            setTimeout(() => {
+                                btn.style.background = 'linear-gradient(135deg, #ffffff, #f0f0ff)';
+                                btn.style.color = '#667eea';
+                                btn.style.borderColor = '#667eea';
+                                btn.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
+                            }, 500);
+                        }
+                    });
+                });
+            }
+
+            playMemory() {
+                this.showSpeech('Match the pairs!', 30000);
+
+                const emojis = ['🐠', '🦀', '🦐', '🐙', '🦑', '🐚'];
+                const pairs = [...emojis, ...emojis].sort(() => Math.random() - 0.5);
+                let flipped = [];
+                let matched = 0;
+
+                const modal = document.getElementById('modal-overlay');
+                const title = document.getElementById('modal-title');
+                const body = document.getElementById('modal-body');
+
+                title.textContent = '🎴 Memory Match';
+                body.innerHTML = `
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 20px; max-width: 400px; margin-left: auto; margin-right: auto;">
+                        ${pairs.map((emoji, i) => `
+                            <div class="memory-card" data-index="${i}" data-emoji="${emoji}" style="
+                                aspect-ratio: 1;
+                                background: linear-gradient(135deg, #667eea, #764ba2);
+                                border-radius: 15px;
+                                cursor: pointer;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                font-size: 2rem;
+                                position: relative;
+                                transition: all 0.3s;
+                                box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+                            ">
+                                <div class="card-front" style="position: absolute; backface-visibility: hidden;">❓</div>
+                                <div class="card-back" style="position: absolute; backface-visibility: hidden; opacity: 0;">${emoji}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+
+                modal.classList.add('active');
+
+                document.querySelectorAll('.memory-card').forEach(card => {
+                    card.addEventListener('click', () => {
+                        if (flipped.length < 2 && !card.classList.contains('flipped')) {
+                            const audio = this.createAudio();
+                            audio.playClick();
+
+                            card.classList.add('flipped');
+                            card.querySelector('.card-front').style.opacity = '0';
+                            card.querySelector('.card-back').style.opacity = '1';
+                            flipped.push(card);
+
+                            if (flipped.length === 2) {
+                                const emoji1 = flipped[0].dataset.emoji;
+                                const emoji2 = flipped[1].dataset.emoji;
+
+                                setTimeout(() => {
+                                    if (emoji1 === emoji2) {
+                                        const audio = this.createAudio();
+                                        audio.playSuccess();
+                                        flipped.forEach(c => {
+                                            c.style.opacity = '0.5';
+                                            c.style.pointerEvents = 'none';
+                                        });
+                                        matched += 2;
+
+                                        if (matched === pairs.length) {
+                                            setTimeout(() => {
+                                                audio.playHappy();
+                                                this.stats.happiness = Math.min(100, this.stats.happiness + 35);
+                                                this.addXP(40); // Memory game XP!
+                                                this.updateUI();
+                                                this.closeModal();
+                                                this.showSpeech('You found all pairs! Amazing memory! 🧠', 3000);
+                                                const octopus = document.getElementById('octopus');
+                                                const rect = octopus.getBoundingClientRect();
+                                                this.createParticles(rect.left + rect.width / 2, rect.top + rect.height / 2, '🌟', 15);
+                                            }, 500);
+                                        }
+                                    } else {
+                                        const audio = this.createAudio();
+                                        audio.playError();
+                                        flipped.forEach(c => {
+                                            c.classList.remove('flipped');
+                                            c.querySelector('.card-front').style.opacity = '1';
+                                            c.querySelector('.card-back').style.opacity = '0';
+                                        });
+                                    }
+                                    flipped = [];
+                                }, 800);
+                            }
+                        }
+                    });
+                });
+            }
+
+            playQuickClick() {
+                const audio = this.createAudio();
+                let score = 0;
+                let timeLeft = 10;
+
+                const modal = document.getElementById('modal-overlay');
+                const title = document.getElementById('modal-title');
+                const body = document.getElementById('modal-body');
+
+                title.textContent = '⚡ Click the Bubbles!';
+                body.innerHTML = `
+                    <div style="text-align: center; margin-bottom: 15px;">
+                        <div style="font-size: 1.5rem; font-weight: bold; color: #667eea; margin-bottom: 10px;">Time: <span id="timer">${timeLeft}</span>s</div>
+                        <div style="font-size: 1.3rem; font-weight: 600; color: var(--ocean-light);">Score: <span id="quick-score">0</span></div>
+                    </div>
+                    <div id="quick-game-area" style="
+                        width: 100%;
+                        height: 300px;
+                        background: linear-gradient(to bottom, #e0f7fa, #b2ebf2);
+                        border-radius: 20px;
+                        position: relative;
+                        overflow: hidden;
+                    "></div>
+                `;
+
+                modal.classList.add('active');
+
+                const gameArea = document.getElementById('quick-game-area');
+                const timerEl = document.getElementById('timer');
+                const scoreEl = document.getElementById('quick-score');
+
+                const createBubble = () => {
+                    const bubble = document.createElement('div');
+                    const size = 40 + Math.random() * 40;
+                    bubble.style.cssText = `
+                        position: absolute;
+                        width: ${size}px;
+                        height: ${size}px;
+                        background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), rgba(100,200,255,0.6));
+                        border-radius: 50%;
+                        left: ${Math.random() * (100 - 15)}%;
+                        top: ${Math.random() * (100 - 15)}%;
+                        cursor: pointer;
+                        box-shadow: inset 0 0 10px rgba(255,255,255,0.5);
+                        animation: bubble-bob 2s ease-in-out infinite;
+                    `;
+
+                    bubble.addEventListener('click', () => {
+                        audio.playClick();
+                        score += 10;
+                        scoreEl.textContent = score;
+                        bubble.remove();
+                        this.createParticles(
+                            bubble.getBoundingClientRect().left,
+                            bubble.getBoundingClientRect().top,
+                            '💧',
+                            3
+                        );
+                    });
+
+                    gameArea.appendChild(bubble);
+                    setTimeout(() => bubble.remove(), 3000);
+                };
+
+                const bubbleInterval = setInterval(createBubble, 600);
+
+                const countdown = setInterval(() => {
+                    timeLeft--;
+                    timerEl.textContent = timeLeft;
+
+                    if (timeLeft <= 0) {
+                        clearInterval(countdown);
+                        clearInterval(bubbleInterval);
+
+                        setTimeout(() => {
+                            const audio = this.createAudio();
+                            audio.playSuccess();
+                            this.stats.happiness = Math.min(100, this.stats.happiness + Math.floor(score / 10));
+                            this.addXP(score); // Score = XP!
+                            this.updateUI();
+                            this.closeModal();
+                            this.showSpeech(`Great job! You scored ${score} points! 🎉`, 3000);
+                        }, 1000);
+                    }
+                }, 1000);
+            }
+
+            // === BUBBLE-POPPING CLEAN GAME ===
+            clean() {
+                const audio = this.createAudio();
+                audio.playClick();
+
+                this.showSpeech('I need a bath! Pop all the dirt bubbles! 🧼💦', 8000);
+
+                const modal = document.getElementById('modal-overlay');
+                const title = document.getElementById('modal-title');
+                const body = document.getElementById('modal-body');
+
+                title.textContent = '🧼 Bubble Bath Time!';
+
+                let bubblesPopped = 0;
+                const totalBubbles = 12;
+
+                // Create random positions for dirt bubbles
+                const bubbles = [];
+                for (let i = 0; i < totalBubbles; i++) {
+                    bubbles.push({
+                        left: 10 + Math.random() * 75,
+                        top: 10 + Math.random() * 65,
+                        size: 35 + Math.random() * 25,
+                        delay: Math.random() * 0.5
+                    });
+                }
+
+                body.innerHTML = `
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <div style="font-size: 1.2rem; font-weight: 800; color: #e74c3c; margin-bottom: 10px;">
+                            💩 Dirt Bubbles Left: <span id="bubble-count">${totalBubbles}</span>
+                        </div>
+                        <div style="font-size: 0.95rem; color: #7f8c8d; font-weight: 600;">
+                            Click them all to clean me!
+                        </div>
+                    </div>
+                    <div id="bubble-container" style="
+                        position: relative;
+                        width: 100%;
+                        height: 350px;
+                        background: linear-gradient(135deg, #a8e6cf 0%, #dcedc1 50%, #ffd3b6 100%);
+                        border-radius: 20px;
+                        border: 4px solid #3498db;
+                        overflow: hidden;
+                        box-shadow: inset 0 4px 15px rgba(0,0,0,0.1);
+                    ">
+                        ${bubbles.map((bubble, i) => `
+                            <div class="dirt-bubble" data-index="${i}" style="
+                                position: absolute;
+                                left: ${bubble.left}%;
+                                top: ${bubble.top}%;
+                                width: ${bubble.size}px;
+                                height: ${bubble.size}px;
+                                background: radial-gradient(circle at 35% 35%, #8b4513, #654321, #4a2f1a);
+                                border-radius: 50%;
+                                cursor: pointer;
+                                box-shadow: 
+                                    0 4px 10px rgba(0,0,0,0.4),
+                                    inset -3px -3px 8px rgba(0,0,0,0.4),
+                                    inset 3px 3px 8px rgba(160,82,45,0.4);
+                                transition: all 0.2s;
+                                animation: bubble-float ${2 + Math.random()}s ease-in-out infinite;
+                                animation-delay: ${bubble.delay}s;
+                            ">
+                                <div style="
+                                    position: absolute;
+                                    top: 22%;
+                                    left: 28%;
+                                    width: 28%;
+                                    height: 28%;
+                                    background: radial-gradient(circle, rgba(255,255,255,0.25), transparent);
+                                    border-radius: 50%;
+                                "></div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+
+                modal.classList.add('active');
+
+                // Add CSS animation if not already added
+                if (!document.getElementById('bubble-float-style')) {
+                    const style = document.createElement('style');
+                    style.id = 'bubble-float-style';
+                    style.textContent = `
+                        @keyframes bubble-float {
+                            0%, 100% { transform: translateY(0) scale(1); }
+                            50% { transform: translateY(-10px) scale(1.05); }
+                        }
+                    `;
+                    document.head.appendChild(style);
+                }
+
+                const octopus = document.getElementById('octopus');
+                const rect = octopus.getBoundingClientRect();
+
+                document.querySelectorAll('.dirt-bubble').forEach(bubble => {
+                    bubble.addEventListener('mouseenter', () => {
+                        bubble.style.transform = 'scale(1.2)';
+                        bubble.style.boxShadow = '0 6px 15px rgba(0,0,0,0.5)';
+                    });
+                    bubble.addEventListener('mouseleave', () => {
+                        bubble.style.transform = 'scale(1)';
+                        bubble.style.boxShadow = '0 4px 10px rgba(0,0,0,0.4)';
+                    });
+
+                    bubble.addEventListener('click', () => {
+                        audio.playSuccess();
+                        bubblesPopped++;
+
+                        // Pop animation
+                        bubble.style.transform = 'scale(1.4)';
+                        bubble.style.opacity = '0';
+
+                        setTimeout(() => {
+                            bubble.remove();
+                        }, 200);
+
+                        // Update counter
+                        const counterEl = document.getElementById('bubble-count');
+                        if (counterEl) {
+                            counterEl.textContent = totalBubbles - bubblesPopped;
+                        }
+
+                        // Create pop particles
+                        this.createParticles(
+                            rect.left + rect.width / 2,
+                            rect.top + rect.height / 2,
+                            '💦',
+                            5
+                        );
+
+                        // All cleaned!
+                        if (bubblesPopped === totalBubbles) {
+                            setTimeout(() => {
+                                this.stats.hygiene = 100;
+                                this.stats.happiness = Math.min(100, this.stats.happiness + 15);
+                                this.addXP(35);
+                                audio.playHappy();
+                                this.showSpeech('So clean! I\'m sparkling! ✨🧼', 3000);
+                                this.createParticles(rect.left + rect.width / 2, rect.top + rect.height / 2, '✨', 20);
+                                this.createParticles(rect.left + rect.width / 2, rect.top + rect.height / 2, '🧼', 10);
+                                this.createParticles(rect.left + rect.width / 2, rect.top + rect.height / 2, '💎', 8);
+                                this.closeModal();
+                                this.updateUI();
+                                this.checkMood();
+                            }, 600);
+                        }
+                    });
+                });
+            }
+
+            // === PET INTERACTION ===
+            pet() {
+                this.stats.happiness = Math.min(100, this.stats.happiness + 5);
+                this.updateUI();
+                this.showSpeech("Aww, that feels nice! 💕", 1500);
+                this.createHearts();
+            }
+
+            createHearts() {
+                const octopus = document.getElementById('octopus');
+                const rect = octopus.getBoundingClientRect();
+
+                for (let i = 0; i < 5; i++) {
+                    setTimeout(() => {
+                        const heart = document.createElement('div');
+                        heart.textContent = '💕';
+                        heart.className = 'particle';
+                        heart.style.left = `${rect.left + rect.width / 2}px`;
+                        heart.style.top = `${rect.top + rect.height / 2}px`;
+                        heart.style.fontSize = '1.5rem';
+                        document.body.appendChild(heart);
+
+                        heart.animate([
+                            { transform: 'translate(0, 0) scale(0)', opacity: 1 },
+                            { transform: `translate(${(Math.random() - 0.5) * 100}px, -100px) scale(1)`, opacity: 0 }
+                        ], {
+                            duration: 1000,
+                            easing: 'cubic-bezier(0, 0.5, 0.5, 1)'
+                        });
+
+                        setTimeout(() => heart.remove(), 1000);
+                    }, i * 100);
+                }
+            }
+
+
+            // === EDUCATIONAL FEATURES ===
+
+            addXP(amount) {
+                this.xp += amount;
+                const xpForNextLevel = this.level * 100;
+
+                if (this.xp >= xpForNextLevel) {
+                    this.xp -= xpForNextLevel;
+                    this.level++;
+                    this.unlockAchievement('Level Up!', `Reached Level ${this.level}! Keep learning!`);
+                    this.audio.playHappy();
+                }
+
+                document.getElementById('level-num').textContent = this.level;
+                document.getElementById('xp-display').textContent = `${this.xp}/${this.level * 100}`;
+            }
+
+            unlockAchievement(name, description) {
+                if (this.achievements.includes(name)) return;
+
+                this.achievements.push(name);
+                const popup = document.getElementById('achievement-popup');
+                document.getElementById('achievement-name').textContent = name;
+                document.getElementById('achievement-desc').textContent = description;
+
+                popup.classList.add('show');
+                const audio = this.createAudio();
+                audio.playSuccess();
+
+                setTimeout(() => {
+                    popup.classList.remove('show');
+                }, 4000);
+            }
+
+            checkDailyChallenge() {
+                if (!this.currentChallenge || this.dailyChallengeCompleted) return;
+
+                if (this.currentChallenge.progress >= this.currentChallenge.goal) {
+                    this.dailyChallengeCompleted = true;
+                    const audio = this.createAudio();
+                    audio.playSuccess();
+                    audio.playHappy();
+                    this.addXP(this.currentChallenge.xp);
+                    this.unlockAchievement('Daily Champion!', `Completed: ${this.currentChallenge.task}`);
+                    this.showSpeech(`Daily challenge complete! +${this.currentChallenge.xp} XP! 🏆`, 4000);
+                }
+            }
+
+            rotateVocabulary() {
+                this.vocabularyIndex = (this.vocabularyIndex + 1) % this.vocabulary.length;
+                const vocab = this.vocabulary[this.vocabularyIndex];
+                document.getElementById('vocab-word').textContent = vocab.word;
+                document.getElementById('vocab-def').textContent = vocab.def;
+            }
+
+            // === CONVERSATION MODE ===
+            startConversation() {
+                const audio = this.createAudio();
+                audio.playClick();
+
+                const questions = [
+                    {
+                        q: "What is the past tense of 'swim'?",
+                        options: ['swam', 'swimmed', 'swimming'],
+                        correct: 0,
+                        explanation: "'Swam' is the correct past tense of swim!"
+                    },
+                    {
+                        q: "Which word means 'happy'?",
+                        options: ['sad', 'joyful', 'angry'],
+                        correct: 1,
+                        explanation: "'Joyful' means full of joy and happiness!"
+                    },
+                    {
+                        q: "What is the opposite of 'deep'?",
+                        options: ['shallow', 'wide', 'long'],
+                        correct: 0,
+                        explanation: "'Shallow' is the opposite of deep!"
+                    },
+                    {
+                        q: "Which sentence is correct?",
+                        options: ['I am swimming', 'I is swimming', 'I are swimming'],
+                        correct: 0,
+                        explanation: "Use 'am' with 'I': I am swimming!"
+                    },
+                    {
+                        q: "What does 'marine' mean?",
+                        options: ['related to land', 'related to sea', 'related to air'],
+                        correct: 1,
+                        explanation: "'Marine' means related to the sea or ocean!"
+                    }
+                ];
+
+                const question = questions[Math.floor(Math.random() * questions.length)];
+
+                const modal = document.getElementById('modal-overlay');
+                const title = document.getElementById('modal-title');
+                const body = document.getElementById('modal-body');
+
+                title.textContent = '💬 English Question';
+                body.innerHTML = `
+                    <div class="story-text" style="font-size: 1.15rem; font-weight: 600; text-align: center; background: linear-gradient(135deg, #e3f2fd, #bbdefb);">
+                        ${question.q}
+                    </div>
+                    <div class="story-choices">
+                        ${question.options.map((opt, i) => `
+                            <button class="story-choice-btn conversation-choice" data-index="${i}">
+                                ${opt}
+                            </button>
+                        `).join('')}
+                    </div>
+                `;
+
+                modal.classList.add('active');
+
+                document.querySelectorAll('.conversation-choice').forEach((btn, i) => {
+                    btn.addEventListener('click', () => {
+                        const audio = this.createAudio();
+
+                        if (i === question.correct) {
+                            audio.playSuccess();
+                            this.addXP(15);
+                            this.stats.happiness = Math.min(100, this.stats.happiness + 15);
+                            this.conversationCount++;
+
+                            if (this.currentChallenge && this.currentChallenge.type === 'talk') {
+                                this.currentChallenge.progress++;
+                                this.checkDailyChallenge();
+                            }
+
+                            if (this.conversationCount === 5) {
+                                this.unlockAchievement('Conversationalist', 'Answered 5 questions correctly!');
+                            }
+
+                            setTimeout(() => {
+                                this.closeModal();
+                                this.showSpeech(`Correct! ${question.explanation} 🎉`, 4000);
+                                this.updateUI();
+                            }, 300);
+                        } else {
+                            audio.playError();
+                            btn.style.background = 'linear-gradient(135deg, #f87171, #ef4444)';
+                            setTimeout(() => {
+                                this.closeModal();
+                                this.showSpeech(`Not quite! ${question.explanation}`, 3500);
+                            }, 800);
+                        }
+                    });
+                });
+            }
+
+            // === WORD SCRAMBLE ===
+            wordScramble() {
+                const audio = this.createAudio();
+                audio.playClick();
+
+                const wordData = this.scrambleWords[Math.floor(Math.random() * this.scrambleWords.length)];
+                const scrambled = wordData.word.split('').sort(() => Math.random() - 0.5).join('');
+                let userAnswer = '';
+
+                const modal = document.getElementById('modal-overlay');
+                const title = document.getElementById('modal-title');
+                const body = document.getElementById('modal-body');
+
+                title.textContent = '🔤 Word Scramble';
+                body.innerHTML = `
+                    <div class="story-text" style="background: linear-gradient(135deg, #ffeaa7, #fdcb6e); text-align: center;">
+                        <div style="font-size: 0.95rem; color: #636e72; margin-bottom: 10px;">💡 ${wordData.hint}</div>
+                        <div style="font-size: 2rem; font-weight: 700; color: #2d3436; letter-spacing: 8px; margin: 15px 0;">${scrambled}</div>
+                    </div>
+                    <div style="margin: 20px 0;">
+                        <input type="text" id="scramble-input" placeholder="Type your answer..." style="
+                            width: 100%;
+                            padding: 15px;
+                            font-size: 1.2rem;
+                            border: 3px solid #667eea;
+                            border-radius: 10px;
+                            text-align: center;
+                            text-transform: uppercase;
+                            font-weight: 600;
+                        ">
+                    </div>
+                    <button class="story-choice-btn" id="scramble-submit" style="width: 100%; text-align: center;">
+                        ✅ Submit Answer
+                    </button>
+                `;
+
+                modal.classList.add('active');
+
+                const input = document.getElementById('scramble-input');
+                input.focus();
+
+                const checkAnswer = () => {
+                    const answer = input.value.toUpperCase().trim();
+                    const audio = this.createAudio();
+
+                    if (answer === wordData.word) {
+                        audio.playSuccess();
+                        audio.playHappy();
+                        this.addXP(35);
+                        this.stats.happiness = Math.min(100, this.stats.happiness + 20);
+                        this.updateUI();
+                        this.closeModal();
+                        this.showSpeech(`Perfect! "${wordData.word}" is correct! 🎉`, 3000);
+                        const octopus = document.getElementById('octopus');
+                        const rect = octopus.getBoundingClientRect();
+                        this.createParticles(rect.left + rect.width / 2, rect.top + rect.height / 2, '📝', 10);
+                        this.rotateVocabulary();
+                    } else if (answer) {
+                        audio.playError();
+                        input.style.borderColor = '#f87171';
+                        input.value = '';
+                        input.placeholder = 'Try again...';
+                        setTimeout(() => {
+                            input.style.borderColor = '#667eea';
+                            input.placeholder = 'Type your answer...';
+                        }, 1000);
+                    }
+                };
+
+                document.getElementById('scramble-submit').addEventListener('click', checkAnswer);
+                input.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') checkAnswer();
+                });
+            }
+
+            // === SENTENCE BUILDER ===
+            sentenceBuilder() {
+                const audio = this.createAudio();
+                audio.playClick();
+
+                const pattern = this.sentencePatterns[Math.floor(Math.random() * this.sentencePatterns.length)];
+                let selectedWords = [];
+
+                const modal = document.getElementById('modal-overlay');
+                const title = document.getElementById('modal-title');
+                const body = document.getElementById('modal-body');
+
+                title.textContent = '� Build a Sentence';
+                body.innerHTML = `
+                    <div class="story-text" style="background: linear-gradient(135deg, #a29bfe, #6c5ce7); color: white; text-align: center;">
+                        <div style="font-size: 1rem; margin-bottom: 10px;">💡 ${pattern.hint}</div>
+                        <div style="font-size: 0.9rem; opacity: 0.9;">Click words in the correct order!</div>
+                    </div>
+                    <div id="selected-words" style="
+                        min-height: 60px;
+                        background: rgba(255,255,255,0.95);
+                        border-radius: 10px;
+                        padding: 15px;
+                        margin: 15px 0;
+                        display: flex;
+                        gap: 8px;
+                        flex-wrap: wrap;
+                        align-items: center;
+                        justify-content: center;
+                        border: 2px dashed #667eea;
+                    "></div>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+                        ${pattern.words.map((word, i) => `
+                            <button class="word-btn" data-word="${word}" data-index="${i}" style="
+                                background: linear-gradient(135deg, #74b9ff, #0984e3);
+                                border: none;
+                                padding: 12px 20px;
+                                border-radius: 10px;
+                                color: white;
+                                font-size: 1.1rem;
+                                font-weight: 600;
+                                cursor: pointer;
+                                transition: all 0.2s;
+                                box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+                            ">${word}</button>
+                        `).join('')}
+                    </div>
+                    <button class="story-choice-btn" id="check-sentence" style="width: 100%; text-align: center; margin-top: 15px; opacity: 0.5; pointer-events: none;">
+                        ✅ Check Sentence
+                    </button>
+                `;
+
+                modal.classList.add('active');
+
+                const selectedArea = document.getElementById('selected-words');
+                const checkBtn = document.getElementById('check-sentence');
+
+                document.querySelectorAll('.word-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const word = btn.dataset.word;
+                        selectedWords.push(word);
+                        btn.style.opacity = '0.3';
+                        btn.style.pointerEvents = 'none';
+
+                        const wordSpan = document.createElement('span');
+                        wordSpan.textContent = word;
+                        wordSpan.style.cssText = `
+                            background: #667eea;
+                            color: white;
+                            padding: 8px 15px;
+                            border-radius: 8px;
+                            font-size: 1.1rem;
+                            font-weight: 600;
+                        `;
+                        selectedArea.appendChild(wordSpan);
+
+                        if (selectedWords.length === pattern.correct.length) {
+                            checkBtn.style.opacity = '1';
+                            checkBtn.style.pointerEvents = 'all';
+                        }
+
+                        const audio = this.createAudio();
+                        audio.playClick();
+                    });
+                });
+
+                checkBtn.addEventListener('click', () => {
+                    const audio = this.createAudio();
+                    const correct = JSON.stringify(selectedWords) === JSON.stringify(pattern.correct);
+
+                    if (correct) {
+                        audio.playSuccess();
+                        audio.playHappy();
+                        this.addXP(40);
+                        this.stats.happiness = Math.min(100, this.stats.happiness + 25);
+                        this.updateUI();
+                        this.closeModal();
+                        this.showSpeech(`Perfect sentence: "${pattern.correct.join(' ')}"! 🌟`, 3500);
+                        const octopus = document.getElementById('octopus');
+                        const rect = octopus.getBoundingClientRect();
+                        this.createParticles(rect.left + rect.width / 2, rect.top + rect.height / 2, '⭐', 12);
+                    } else {
+                        audio.playError();
+                        selectedWords = [];
+                        selectedArea.innerHTML = '';
+                        document.querySelectorAll('.word-btn').forEach(b => {
+                            b.style.opacity = '1';
+                            b.style.pointerEvents = 'all';
+                        });
+                        checkBtn.style.opacity = '0.5';
+                        checkBtn.style.pointerEvents = 'none';
+                        this.showSpeech('Try again! Think about word order.', 2000);
+                    }
+                });
+            }
+
+            // === OCEAN FACTS QUIZ ===
+            oceanFactsQuiz() {
+                const audio = this.createAudio();
+                audio.playClick();
+
+                const factData = this.oceanFacts[Math.floor(Math.random() * this.oceanFacts.length)];
+
+                const modal = document.getElementById('modal-overlay');
+                const title = document.getElementById('modal-title');
+                const body = document.getElementById('modal-body');
+
+                title.textContent = '🌊 Ocean Facts Quiz';
+                body.innerHTML = `
+                    <div class="story-text" style="background: linear-gradient(135deg, #81ecec, #00b894); color: white; font-size: 1.15rem; font-weight: 600; text-align: center;">
+                        ${factData.question}
+                    </div>
+                    <div class="story-choices">
+                        ${factData.options.map((opt, i) => `
+                            <button class="story-choice-btn fact-option" data-index="${i}">
+                                ${opt}
+                            </button>
+                        `).join('')}
+                    </div>
+                `;
+
+                modal.classList.add('active');
+
+                document.querySelectorAll('.fact-option').forEach((btn, i) => {
+                    btn.addEventListener('click', () => {
+                        const audio = this.createAudio();
+
+                        if (i === factData.correct) {
+                            audio.playSuccess();
+                            audio.playHappy();
+                            this.addXP(25);
+                            this.stats.happiness = Math.min(100, this.stats.happiness + 15);
+                            this.factsLearned++;
+
+                            if (this.currentChallenge && this.currentChallenge.type === 'facts') {
+                                this.currentChallenge.progress++;
+                                this.checkDailyChallenge();
+                            }
+
+                            if (this.factsLearned === 5) {
+                                this.unlockAchievement('Ocean Explorer', 'Learned 5 amazing ocean facts!');
+                            }
+
+                            setTimeout(() => {
+                                this.closeModal();
+                                this.showSpeech(`Correct! 🎉 ${factData.fact}`, 5000);
+                                this.updateUI();
+                                this.rotateVocabulary();
+                            }, 300);
+                        } else {
+                            audio.playError();
+                            btn.style.background = 'linear-gradient(135deg, #f87171, #ef4444)';
+                            setTimeout(() => {
+                                this.closeModal();
+                                this.showSpeech(`Not quite! ${factData.fact}`, 4500);
+                            }, 800);
+                        }
+                    });
+                });
+            }
+
+            // === PET INTERACTION ===
+            pet() {
+                this.stats.happiness = Math.min(100, this.stats.happiness + 5);
+                this.addXP(5);
+                this.updateUI();
+                this.showSpeech("Aww, that feels nice! 💕", 1500);
+
+                const octopus = document.getElementById('octopus');
+                const rect = octopus.getBoundingClientRect();
+                for (let i = 0; i < 5; i++) {
+                    setTimeout(() => {
+                        const heart = document.createElement('div');
+                        heart.textContent = '💕';
+                        heart.className = 'particle';
+                        heart.style.left = `${rect.left + rect.width / 2}px`;
+                        heart.style.top = `${rect.top + rect.height / 2}px`;
+                        heart.style.fontSize = '1.5rem';
+                        document.body.appendChild(heart);
+
+                        heart.animate([
+                            { transform: 'translate(0, 0) scale(0)', opacity: 1 },
+                            { transform: `translate(${(Math.random() - 0.5) * 100}px, -100px) scale(1)`, opacity: 0 }
+                        ], {
+                            duration: 1000,
+                            easing: 'cubic-bezier(0, 0.5, 0.5, 1)'
+                        });
+
+                        setTimeout(() => heart.remove(), 1000);
+                    }, i * 100);
+                }
+            }
+
+            closeModal() {
+                document.getElementById('modal-overlay').classList.remove('active');
+            }
+
+            showPrivacyPolicy() {
+                const modal = document.getElementById('modal-overlay');
+                const title = document.getElementById('modal-title');
+                const body = document.getElementById('modal-body');
+
+                title.textContent = '🔒 Gizlilik Politikası';
+                body.innerHTML = `
+                    <div style="max-height: 400px; overflow-y: auto; text-align: left; padding: 10px;">
+                        <h3 style="color: #2c3e50; margin-top: 0;">Bilgileriniz Güvende</h3>
+                        <p style="color: #7f8c8d; line-height: 1.6;">
+                            OctoPet oyunu tamamen tarayıcınızda çalışır. Hiçbir kişisel bilginiz toplanmaz veya sunuculara gönderilmez.
+                        </p>
+                        
+                        <h3 style="color: #2c3e50;">Veri Saklama</h3>
+                        <p style="color: #7f8c8d; line-height: 1.6;">
+                            Oyun ilerlemeniz yalnızca tarayıcınızın yerel depolama alanında (localStorage) saklanır. 
+                            Bu veriler yalnızca sizin cihazınızda bulunur.
+                        </p>
+                        
+                        <h3 style="color: #2c3e50;">Çerezler</h3>
+                        <p style="color: #7f8c8d; line-height: 1.6;">
+                            Bu oyun çerez kullanmaz. Tüm veriler localStorage ile saklanır.
+                        </p>
+                        
+                        <p style="color: #95a5a6; font-size: 0.85rem; margin-top: 20px;">
+                            Son güncelleme: 25 Aralık 2025
+                        </p>
+                    </div>
+                `;
+                modal.classList.add('active');
+            }
+
+            showTermsOfService() {
+                const modal = document.getElementById('modal-overlay');
+                const title = document.getElementById('modal-title');
+                const body = document.getElementById('modal-body');
+
+                title.textContent = '📜 Kullanım Koşulları';
+                body.innerHTML = `
+                    <div style="max-height: 400px; overflow-y: auto; text-align: left; padding: 10px;">
+                        <h3 style="color: #2c3e50; margin-top: 0;">Hoş Geldiniz!</h3>
+                        <p style="color: #7f8c8d; line-height: 1.6;">
+                            OctoPet'i kullanarak aşağıdaki koşulları kabul etmiş olursunuz.
+                        </p>
+                        
+                        <h3 style="color: #2c3e50;">Kullanım</h3>
+                        <p style="color: #7f8c8d; line-height: 1.6;">
+                            • Bu oyun eğlence ve eğitim amaçlıdır.<br>
+                            • Oyunu dilediğiniz gibi kullanabilirsiniz.<br>
+                            • Sanal evcil hayvanınıza iyi bakın! 🐙
+                        </p>
+                        
+                        <h3 style="color: #2c3e50;">Sorumluluk</h3>
+                        <p style="color: #7f8c8d; line-height: 1.6;">
+                            Oyun "olduğu gibi" sunulmaktadır. Veri kaybından veya diğer sorunlardan 
+                            sorumlu değiliz.
+                        </p>
+                        
+                        <h3 style="color: #2c3e50;">Eğlenceli Olun!</h3>
+                        <p style="color: #7f8c8d; line-height: 1.6;">
+                            En önemlisi: Eğlenin ve ahtapotunuzla keyifli vakit geçirin! 🎮💜
+                        </p>
+                        
+                        <p style="color: #95a5a6; font-size: 0.85rem; margin-top: 20px;">
+                            Son güncelleme: 25 Aralık 2025
+                        </p>
+                    </div>
+                `;
+                modal.classList.add('active');
+            }
+
+            showAbout() {
+                const modal = document.getElementById('modal-overlay');
+                const title = document.getElementById('modal-title');
+                const body = document.getElementById('modal-body');
+
+                title.textContent = '🔐 Giriş Gerekli';
+                body.innerHTML = `
+                    <div style="text-align: center; padding: 20px;">
+                        <p style="color: #7f8c8d; margin-bottom: 20px; line-height: 1.6;">
+                            Bu bölüm, hazırlayan kişinin kişisel bilgilerini korumak amacıyla şifre ile korunmaktadır.
+                        </p>
+                        <input type="password" id="about-password" placeholder="Şifre girin" style="
+                            width: 100%;
+                            max-width: 300px;
+                            padding: 12px 15px;
+                            border: 2px solid #3498db;
+                            border-radius: 10px;
+                            font-size: 1rem;
+                            text-align: center;
+                            margin-bottom: 15px;
+                        ">
+                        <div id="password-error" style="color: #e74c3c; font-size: 0.85rem; margin-bottom: 15px; min-height: 20px;"></div>
+                        <button onclick="game.checkAboutPassword()" style="
+                            background: linear-gradient(135deg, #3498db, #2980b9);
+                            color: white;
+                            border: none;
+                            padding: 12px 30px;
+                            border-radius: 25px;
+                            font-size: 1rem;
+                            font-weight: 700;
+                            cursor: pointer;
+                            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+                            transition: all 0.2s;
+                        " onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                            Giriş Yap
+                        </button>
+                    </div>
+                `;
+                modal.classList.add('active');
+
+                // Enter key support
+                setTimeout(() => {
+                    const input = document.getElementById('about-password');
+                    if (input) {
+                        input.focus();
+                        input.addEventListener('keypress', (e) => {
+                            if (e.key === 'Enter') {
+                                this.checkAboutPassword();
+                            }
+                        });
+                    }
+                }, 100);
+            }
+
+            checkAboutPassword() {
+                const input = document.getElementById('about-password');
+                const errorDiv = document.getElementById('password-error');
+                const password = input ? input.value : '';
+
+                if (password === 'kedi') {
+                    // Correct password - show portfolio
+                    const modal = document.getElementById('modal-overlay');
+                    const title = document.getElementById('modal-title');
+                    const body = document.getElementById('modal-body');
+
+                    title.textContent = '👨‍💻 About - Project Portfolio';
+                    body.innerHTML = `
+                        <div style="max-height: 450px; overflow-y: auto; text-align: left; padding: 15px;">
+                            <h2 style="color: #2c3e50; margin-top: 0; text-align: center;">🎮 OctoPet Virtual Pet Game</h2>
+                            
+                            <div style="background: linear-gradient(135deg, #667eea, #764ba2); padding: 15px; border-radius: 15px; color: white; margin-bottom: 20px;">
+                                <h3 style="margin: 0 0 10px 0;">📌 Project Summary</h3>
+                                <p style="margin: 0; line-height: 1.6;">
+                                    An interactive virtual pet game. Developed with Vanilla JavaScript and HTML5/CSS3.
+                                    Includes educational mini-games, feeding system, and bubble-popping mechanics.
+                                </p>
+                            </div>
+
+                            <h3 style="color: #2c3e50;">🛠️ Development Process</h3>
+                            
+                            <div style="border-left: 4px solid #3498db; padding-left: 15px; margin-bottom: 20px;">
+                                <h4 style="color: #3498db; margin: 10px 0;">1️⃣ Planning & Design</h4>
+                                <p style="color: #7f8c8d; line-height: 1.6; margin: 5px 0;">
+                                    • Game mechanics defined<br>
+                                    • UI/UX design created<br>
+                                    • Feature list established
+                                </p>
+                            </div>
+
+                            <div style="border-left: 4px solid #e74c3c; padding-left: 15px; margin-bottom: 20px;">
+                                <h4 style="color: #e74c3c; margin: 10px 0;">2️⃣ Code Development</h4>
+                                <p style="color: #7f8c8d; line-height: 1.6; margin: 5px 0;">
+                                    • Core game engine coded<br>
+                                    • Interactive features added<br>
+                                    • Code optimization performed using AI Assistant<br>
+                                    • Mini-games developed
+                                </p>
+                            </div>
+
+                            <div style="border-left: 4px solid #f39c12; padding-left: 15px; margin-bottom: 20px;">
+                                <h4 style="color: #f39c12; margin: 10px 0;">3️⃣ Visual Enhancement</h4>
+                                <p style="color: #7f8c8d; line-height: 1.6; margin: 5px 0;">
+                                    • Premium CSS animations<br>
+                                    • Particle systems<br>
+                                    • Organic UI design<br>
+                                    • Seaweed & Coral graphics
+                                </p>
+                            </div>
+
+                            <div style="border-left: 4px solid #27ae60; padding-left: 15px; margin-bottom: 20px;">
+                                <h4 style="color: #27ae60; margin: 10px 0;">4️⃣ Testing & Optimization</h4>
+                                <p style="color: #7f8c8d; line-height: 1.6; margin: 5px 0;">
+                                    • Playability testing<br>
+                                    • Performance optimization<br>
+                                    • Bug fixes<br>
+                                    • Final touches
+                                </p>
+                            </div>
+
+                            <h3 style="color: #2c3e50;">🤖 AI Assistant Usage</h3>
+                            <p style="color: #7f8c8d; line-height: 1.6;">
+                                In this project, AI assistant helped with code writing, optimization, and problem-solving. 
+                                It provided support especially in developing complex algorithms and 
+                                improving the code structure.
+                            </p>
+
+                            <h3 style="color: #2c3e50;">💻 Technologies</h3>
+                            <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;">
+                                <span style="background: #e74c3c; color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.85rem;">HTML5</span>
+                                <span style="background: #3498db; color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.85rem;">CSS3</span>
+                                <span style="background: #f39c12; color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.85rem;">JavaScript</span>
+                                <span style="background: #9b59b6; color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.85rem;">Vanilla JS</span>
+                                <span style="background: #16a085; color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.85rem;">localStorage</span>
+                            </div>
+
+                            <div style="background: #ecf0f1; padding: 15px; border-radius: 10px; margin-top: 20px; text-align: center;">
+                                <p style="color: #2c3e50; margin: 0 0 10px 0; font-weight: 700; font-size: 1.1rem;">
+                                    👨‍💻 Developer
+                                </p>
+                                <p style="color: #3498db; margin: 0 0 5px 0; font-weight: 600; font-size: 1.05rem;">
+                                    Sudenaz Şentürk
+                                </p>
+                                <p style="color: #7f8c8d; margin: 15px 0 0 0; font-style: italic;">
+                                    "Developed with love and passion 💜"
+                                </p>
+                                <p style="color: #95a5a6; font-size: 0.85rem; margin: 10px 0 0 0;">
+                                    © 2025 - OctoPet Project
+                                </p>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    // Wrong password
+                    if (errorDiv) {
+                        errorDiv.textContent = '❌ Hatalı şifre! Tekrar deneyin.';
+                        input.value = '';
+                        input.focus();
+
+                        // Shake animation
+                        input.style.animation = 'shake 0.5s';
+                        setTimeout(() => {
+                            input.style.animation = '';
+                        }, 500);
+                    }
+                }
+            }
+
+            setLanguage(lang) {
+                this.language = lang;
+
+                // Update button styles
+                const trBtn = document.getElementById('lang-tr');
+                const enBtn = document.getElementById('lang-en');
+
+                if (lang === 'tr') {
+                    trBtn.style.background = 'linear-gradient(135deg, #e74c3c, #c0392b)';
+                    trBtn.style.color = 'white';
+                    trBtn.style.border = 'none';
+                    trBtn.style.boxShadow = '2px 2px 0 rgba(0,0,0,0.2)';
+
+                    enBtn.style.background = '#ecf0f1';
+                    enBtn.style.color = '#7f8c8d';
+                    enBtn.style.border = '2px solid #bdc3c7';
+                    enBtn.style.boxShadow = 'none';
+                } else {
+                    enBtn.style.background = 'linear-gradient(135deg, #3498db, #2980b9)';
+                    enBtn.style.color = 'white';
+                    enBtn.style.border = 'none';
+                    enBtn.style.boxShadow = '2px 2px 0 rgba(0,0,0,0.2)';
+
+                    trBtn.style.background = '#ecf0f1';
+                    trBtn.style.color = '#7f8c8d';
+                    trBtn.style.border = '2px solid #bdc3c7';
+                    trBtn.style.boxShadow = 'none';
+                }
+
+                // Update stat labels
+                const statLabels = document.querySelectorAll('.stat-label span:not(.stat-icon)');
+                const t = this.translations[lang];
+
+                if (statLabels[0]) statLabels[0].textContent = t.hunger;
+                if (statLabels[1]) statLabels[1].textContent = t.happiness;
+                if (statLabels[2]) statLabels[2].textContent = t.hygiene;
+
+                // Update action buttons
+                const actionBtns = document.querySelectorAll('#action-panel .action-btn span:not(.btn-icon)');
+                if (actionBtns[0]) actionBtns[0].textContent = t.feed;
+                if (actionBtns[1]) actionBtns[1].textContent = t.play;
+                if (actionBtns[2]) actionBtns[2].textContent = t.clean;
+                if (actionBtns[3]) actionBtns[3].textContent = t.talk;
+                if (actionBtns[4]) actionBtns[4].textContent = t.scramble;
+                if (actionBtns[5]) actionBtns[5].textContent = t.sentence;
+                if (actionBtns[6]) actionBtns[6].textContent = t.facts;
+
+                // Update footer
+                const footerDiv = document.querySelector('body > div[style*="position: fixed"][style*="bottom: 0"]');
+                if (footerDiv) {
+                    const footerText = footerDiv.querySelector('div:first-child');
+                    const footerLinks = footerDiv.querySelectorAll('a');
+
+                    if (footerText) footerText.textContent = t.madeWithLove;
+                    if (footerLinks[0]) footerLinks[0].textContent = t.about;
+                    if (footerLinks[1]) footerLinks[1].textContent = t.privacy;
+                    if (footerLinks[2]) footerLinks[2].textContent = t.terms;
+                }
+
+                // Update Level display
+                const levelDisplay = document.getElementById('level-display');
+                if (levelDisplay) {
+                    const levelText = levelDisplay.querySelector('div:first-child');
+                    if (levelText) {
+                        const levelNum = document.getElementById('level-num');
+                        const num = levelNum ? levelNum.textContent : '1';
+                        levelText.innerHTML = `${t.level} <span class="level-number" id="level-num">${num}</span>`;
+                    }
+                }
+            }
+        }
+
+        // Initialize game
+        const game = new PremiumOctoPetGame();
+    </script>
+
+    <!-- Footer -->
+    <div style="
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(44, 62, 80, 0.85);
+        backdrop-filter: blur(8px);
+        padding: 12px 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 20px;
+        z-index: 150;
+        border-top: 2px solid rgba(255, 255, 255, 0.2);
+        font-size: 0.85rem;
+    ">
+        <div style="color: #ecf0f1; font-weight: 600;">
+            Made with love 💜
+        </div>
+        <div style="display: flex; gap: 15px;">
+            <a href="#" onclick="game.showAbout(); return false;" style="
+                color: #3498db;
+                text-decoration: none;
+                font-weight: 600;
+                transition: color 0.2s;
+            " onmouseover="this.style.color='#5dade2'" onmouseout="this.style.color='#3498db'">
+                About
+            </a>
+            <span style="color: #95a5a6;">•</span>
+            <a href="#" onclick="game.showPrivacyPolicy(); return false;" style="
+                color: #3498db;
+                text-decoration: none;
+                font-weight: 600;
+                transition: color 0.2s;
+            " onmouseover="this.style.color='#5dade2'" onmouseout="this.style.color='#3498db'">
+                Privacy Policy
+            </a>
+            <span style="color: #95a5a6;">•</span>
+            <a href="#" onclick="game.showTermsOfService(); return false;" style="
+                color: #3498db;
+                text-decoration: none;
+                font-weight: 600;
+                transition: color 0.2s;
+            " onmouseover="this.style.color='#5dade2'" onmouseout="this.style.color='#3498db'">
+                Terms of Service
+            </a>
+        </div>
+    </div>
+
+</body>
+
+</html>
